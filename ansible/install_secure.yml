@@ -1,0 +1,58 @@
+---
+- name: Ensure all required DEB secure packages are installed
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    pkg:
+      - fail2ban
+  when:
+    - ansible_os_family == "Debian"
+
+- name: Ensure all required RPM secure packages are installed
+  become: true
+  become_user: root
+  ansible.builtin.yum:
+    pkg:
+      - fail2ban-all
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version >= "7"
+
+- name: Configure fail2ban filter
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    src: "{{ WODINSSYSDIR }}/fail2ban.conf"
+    dest: /etc/fail2ban/filter.d/jupyterhub.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure fail2ban jail
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    src: "{{ WODINSSYSDIR }}/fail2ban.jail"
+    dest: /etc/fail2ban/jail.local
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure fail2ban action
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    src: "{{ WODINSSYSDIR }}/fail2ban.action"
+    dest: /etc/fail2ban/action.d/jupyterhub.conf
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Enable fail2ban
+  become: true
+  become_user: root
+  ansible.builtin.systemd:
+    state: started
+    daemon_reload: true
+    enabled: true
+    name: fail2ban

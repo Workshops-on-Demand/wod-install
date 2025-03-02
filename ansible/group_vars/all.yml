@@ -1,0 +1,37 @@
+# We create fixed user accounts to provide an isolated execution environment to run the jupyter notebooks
+# They are called studentXXX where XXX is comprised between WODUSERMIN and WODUSERMAX defined below poentially with the addition of an offset (UIDBASE) for their uid/gid
+# Their home directory is located under /student and is thus named /student/studentXXX
+# Corresponding JupyterHub accounts are also created
+#
+# WODUSERMIN indicates the starting ID of the Linux and Jupyter user account range
+#
+WODUSERMIN: 1
+#
+# WODUSERMAX indicates the ending ID of the Linux and Jupyter user account range
+#
+WODUSERMAX: 100
+#
+# Branding management - Use if you want to customize Logo and Notebooks branding
+#
+BRANDING: "WoD Developer"
+BRANDINGWOD: "WoD Developer"
+BRANDINGLOGO: "![WoDlogo](img/logo.png)"
+BRANDINGLOGOURL: "![WoDlogo](img/logo.png)"
+BRANDINGURL: "https://wod.io"
+BRANDINGSLACK: ""
+BRANDINGX: ""
+#
+# Survey management - Use if you want to ask for feedbacks on your Workshops - Look at existing conclusion notebooks
+SURVEYURL: TBD
+SURVEYCHALURL: TBD
+#
+# This is file a template used to generate WODGROUP ansible variable files used by wod-deliver e.g.
+# It is appended to your WODGROUP ansible file by the installer.
+#
+#
+# You may want to use these variables if you have an OPNSense server as a security FW and allowing http comm internally
+#
+#OPNSENSEKEY:
+#OPNSENSESEC:
+#OPNSENSEIP:
+#OPNSENSEPORT:

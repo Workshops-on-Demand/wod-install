@@ -1,0 +1,65 @@
+#!/bin/bash
+
+#WODPRIVINV=""
+#ANSIBLEPRIVOPT=""
+
+LOG="/tmp/wod-deliver.log.$$"
+MAIL="/tmp/mail.$$"
+source /etc/wod.sh
+
+echo {{ WODBEFQDN }} | grep -q ',' 
+if [ $? -eq 0 ]; then
+    # Use the first backend only
+    FQDN="`echo {{ WODBEFQDN }} | cut -d: -f1`"
+else
+    FQDN="{{ WODBEFQDN }}"
+fi
+
+CMD="ansible-playbook -i inventory $WODPRIVINV --limit {{ WODGROUP }} $WODANSPLAYOPT $WODANSPRIVOPT check_$WODTYPE.yml"
+send_mail() {
+
+    cat > $MAIL << EOF
+MAIL FROM: {{ WODSENDER }}
+RCPT TO: {{ WODMONITOR }}
+DATA
+Subject: ERROR in wod-deliver
+
+Command $CMD finished with errors:
+----------------------------------
+EOF
+
+	cat $LOG >> $MAIL
+    cat >> $MAIL << EOF
+----------------------------------
+.
+QUIT
+EOF
+        cat $MAIL | netcat $FQDN {{ WODPOSTPORT }}
+        rm -f $MAIL
+}
+
+if [ "$WODTYPE" = "backend" ]; then
+	# Git doesn't collect file rights and we need to have correct ones here so forcing
+	for d in {{ WODINSDIR }}/../skel  {{ WODPRIVDIR }}/skel; do
+		if [ -d $d ]; then
+			cd $d
+			find .ssh -type f | xargs chmod 600
+			chmod 700 .ssh
+			# Avoids error msgs
+			touch .ssh/toto.pub
+			find .ssh -type f -name '*.pub' | xargs chmod 644
+			rm -f .ssh/toto.pub
+			cd ..
+		fi
+	done
+fi
+#
+
+cd {{ WODANSIBLEDIR }}
+$CMD |& tee $LOG
+
+if [ $? -ne 0 ]; then
+	# We have an error in the delivery warn the admin
+	send_mail
+fi
+rm -f $LOG
