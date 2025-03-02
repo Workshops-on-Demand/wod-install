@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Launch the API server
+#
+source /etc/wod.sh
+source $WODINSDIR/install-functions.sh
+
+cd $WODROOTDIR/wod-$WODTYPE
+relaunch_with_pm2 wod-$WODTYPE
