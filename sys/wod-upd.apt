@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Script to update distribution to latest content
+
+apt update -y
+apt upgrade -y
