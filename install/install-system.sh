@@ -216,7 +216,10 @@ EOF
 fi
 
 # Import the USERMAX value here as needed for both backend and api-db
-export USERMAX=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR | jq ".USERMAX"`
+export USERMAX=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".USERMAX"`
+cat >> /etc/wod.sh << EOF
+export USERMAX=$USERMAX
+EOF
 
 if [ $WODTYPE != "appliance" ]; then
     # Setup this using the group for WoD
