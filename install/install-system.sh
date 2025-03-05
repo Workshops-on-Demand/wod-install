@@ -99,8 +99,8 @@ WODPRIVINV=""
 # Manages private inventory if any
 if [ -f $WODPRIVDIR/ansible/inventory ]; then
     WODPRIVINV="-i $WODPRIVDIR/ansible/inventory"
-    export WODPRIVINV
 fi
+export WODPRIVINV
 
 # AIP-DB PART
 #    |---------- ansible (WODANSIBLEDIR)
@@ -146,13 +146,12 @@ WODGROUP=$WODGROUP
 # Declares shell variables as ansible variables as well
 # then they can be used in playbooks
 WODANSPLAYOPT="-e WODGROUP=$WODGROUP -e WODUSER=$WODUSER -e WODBEDIR=$WODBEDIR -e WODNOBO=$WODNOBO -e WODPRIVNOBO=$WODPRIVNOBO -e WODPRIVDIR=$WODPRIVDIR -e WODAPIDBDIR=$WODAPIDBDIR -e WODFEDIR=$WODFEDIR -e WODSTUDDIR=$WODSTUDDIR -e WODANSIBLEDIR=$WODANSIBLEDIR -e WODANSIBLEPRIVDIR=$WODANSIBLEPRIVDIR -e WODSCRIPTDIR=$WODSCRIPTDIR -e WODSCRIPTPRIVDIR=$WODSCRIPTPRIVDIR -e WODSYSDIR=$WODSYSDIR -e WODSYSPRIVDIR=$WODSYSPRIVDIR -e WODINSDIR=$WODINSDIR -e WODINSSCRIPTDIR=$WODINSSCRIPTDIR -e WODINSANSDIR=$WODINSANSDIR -e WODINSSYSDIR=$WODINSSYSDIR"
+export WODANSPLAYOPT
 
 # For future wod.sh usage by other scripts
 cat >> /etc/wod.sh << EOF
-export WODANSPLAYOPT="$WODANSPLAYOPT"
 export WODGROUP=$WODGROUP
 EOF
-export WODANSPLAYOPT
 
 if ! command -v ansible-galaxy &> /dev/null
 then
@@ -181,13 +180,11 @@ WODANSPRIVOPT=""
 if [ -f "$WODANSIBLEPRIVDIR/group_vars/all.yml" ]; then
     WODANSPRIVOPT="$WODANSPRIVOPT -e @$WODANSIBLEPRIVDIR/group_vars/all.yml"
 fi
+# Built later on
+WODANSPRIVOPT="$WODANSPRIVOPT -e @$WODANSIBLEPRIVDIR/generated/$WODGROUP"
 if [ -f "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" ]; then
     WODANSPRIVOPT="$WODANSPRIVOPT -e @$WODANSIBLEPRIVDIR/group_vars/$WODGROUP"
 fi
-# For future wod.sh usage by other scripts
-cat >> /etc/wod.sh << EOF
-export WODANSPRIVOPT="$WODANSPRIVOPT"
-EOF
 export WODANSPRIVOPT
 
 if [ $WODTYPE = "backend" ]; then
@@ -195,6 +192,13 @@ if [ $WODTYPE = "backend" ]; then
 elif [ $WODTYPE = "api-db" ] || [ $WODTYPE = "frontend" ]; then
     WODANSPLAYOPT="$WODANSPLAYOPT -e WODLDAPSETUP=0"
 fi
+#
+# For future wod.sh usage by other scripts
+cat >> /etc/wod.sh << EOF
+export WODANSPRIVOPT="$WODANSPRIVOPT"
+export WODANSPLAYOPT="$WODANSPLAYOPT"
+EOF
+
 
 # Inventory based on the installed system
 if [ $WODTYPE = "backend" ]; then
@@ -247,7 +251,6 @@ WODAPIDBPORT: $WODAPIDBPORT
 WODAPIDBEXTPORT: $WODAPIDBEXTPORT
 WODPOSTPORT: $WODPOSTPORT
 EOF
-    WODANSPRIVOPT="$WODANSPRIVOPT -e @$WODANSIBLEPRIVDIR/generated/$WODGROUP"
     cat $WODINSANSDIR/group_vars/wod-system >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
 
     if [ -f $WODANSIBLEDIR/group_vars/wod-$WODTYPE ]; then
