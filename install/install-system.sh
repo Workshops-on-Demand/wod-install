@@ -146,7 +146,6 @@ WODGROUP=$WODGROUP
 # Declares shell variables as ansible variables as well
 # then they can be used in playbooks
 WODANSPLAYOPT="-e WODGROUP=$WODGROUP -e WODUSER=$WODUSER -e WODBEDIR=$WODBEDIR -e WODNOBO=$WODNOBO -e WODPRIVNOBO=$WODPRIVNOBO -e WODPRIVDIR=$WODPRIVDIR -e WODAPIDBDIR=$WODAPIDBDIR -e WODFEDIR=$WODFEDIR -e WODSTUDDIR=$WODSTUDDIR -e WODANSIBLEDIR=$WODANSIBLEDIR -e WODANSIBLEPRIVDIR=$WODANSIBLEPRIVDIR -e WODSCRIPTDIR=$WODSCRIPTDIR -e WODSCRIPTPRIVDIR=$WODSCRIPTPRIVDIR -e WODSYSDIR=$WODSYSDIR -e WODSYSPRIVDIR=$WODSYSPRIVDIR -e WODINSDIR=$WODINSDIR -e WODINSSCRIPTDIR=$WODINSSCRIPTDIR -e WODINSANSDIR=$WODINSANSDIR -e WODINSSYSDIR=$WODINSSYSDIR"
-export WODANSPLAYOPT
 
 # For future wod.sh usage by other scripts
 cat >> /etc/wod.sh << EOF
@@ -192,6 +191,7 @@ if [ $WODTYPE = "backend" ]; then
 elif [ $WODTYPE = "api-db" ] || [ $WODTYPE = "frontend" ]; then
     WODANSPLAYOPT="$WODANSPLAYOPT -e WODLDAPSETUP=0"
 fi
+export WODANSPLAYOPT
 #
 # For future wod.sh usage by other scripts
 cat >> /etc/wod.sh << EOF
@@ -218,12 +218,6 @@ elif [ $WODTYPE = "frontend" ]; then
 $WODFEFQDN ansible_connection=local
 EOF
 fi
-
-# Import the USERMAX value here as needed for both backend and api-db
-export USERMAX=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".USERMAX"`
-cat >> /etc/wod.sh << EOF
-export USERMAX=$USERMAX
-EOF
 
 if [ $WODTYPE != "appliance" ]; then
     # Setup this using the group for WoD
@@ -257,6 +251,12 @@ EOF
         cat $WODANSIBLEDIR/group_vars/wod-$WODTYPE >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
     fi
 fi
+
+# Import the USERMAX value here as needed for both backend and api-db
+export USERMAX=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".USERMAX"`
+cat >> /etc/wod.sh << EOF
+export USERMAX=$USERMAX
+EOF
 
 if [ $WODTYPE = "backend" ]; then
     # Compute WODBASESTDID based on the number of this backend server multiplied by the number of users wanted
