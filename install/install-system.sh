@@ -220,7 +220,8 @@ export USERMAX=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host
 
 if [ $WODTYPE != "appliance" ]; then
     # Setup this using the group for WoD
-    cat > $WODANSIBLEPRIVDIR/group_vars/$WODGROUP << EOF
+    mkdir -p  $WODANSIBLEPRIVDIR/generated
+    cat > $WODANSIBLEPRIVDIR/generated/$WODGROUP << EOF
 WODGROUP: $WODGROUP
 # 
 # Installation specific values
@@ -243,17 +244,18 @@ WODAPIDBPORT: $WODAPIDBPORT
 WODAPIDBEXTPORT: $WODAPIDBEXTPORT
 WODPOSTPORT: $WODPOSTPORT
 EOF
-    cat $WODINSANSDIR/group_vars/wod-system >> $WODANSIBLEPRIVDIR/group_vars/$WODGROUP
+    WODANSPRIVOPT="$WODANSPRIVOPT -e @$WODANSIBLEPRIVDIR/generated/$WODGROUP"
+    cat $WODINSANSDIR/group_vars/wod-system >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
 
     if [ -f $WODANSIBLEDIR/group_vars/wod-$WODTYPE ]; then
-        cat $WODANSIBLEDIR/group_vars/wod-$WODTYPE >> $WODANSIBLEPRIVDIR/group_vars/$WODGROUP
+        cat $WODANSIBLEDIR/group_vars/wod-$WODTYPE >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
     fi
 fi
 
 if [ $WODTYPE = "backend" ]; then
     # Compute WODBASESTDID based on the number of this backend server multiplied by the number of users wanted
     WODBASESTDID=$(($USERMAX*$WODBENBR))
-    cat >> $WODANSIBLEPRIVDIR/group_vars/$WODGROUP << EOF
+    cat >> $WODANSIBLEPRIVDIR/generated/$WODGROUP << EOF
 #
 # WODBASESTDID is the offset used to create users in the DB. It is required that each backend has a different non overlapping value.
 # Overlap is defined by adding USERMAX (from all.yml)
@@ -271,7 +273,7 @@ EOF
 fi
 
 if [ $WODTYPE = "backend" ]; then
-    JPHUB=`cat "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" | grep -E '^JPHUB:' | cut -d: -f2`
+    JPHUB=`cat "$WODANSIBLEPRIVDIR/generated/$WODGROUP" | grep -E '^JPHUB:' | cut -d: -f2`
     # In case of update remove first old jupyterhub version
     if [ _"$JPHUB" = _"" ]; then
         echo "Directory for jupyterhub is empty"
