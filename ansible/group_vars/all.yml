@@ -21,6 +21,10 @@ BRANDINGURL: "https://wod.io"
 BRANDINGSLACK: ""
 BRANDINGX: ""
 #
+# Survey management - Use if you want to ask for feedbacks on your Workshops - Look at existing conclusion notebooks
+SURVEYURL: TBD
+SURVEYCHALURL: TBD
+#
 # This variable is defined for ansible playbooks, do not change without knowing what you do
 # This is the only one remaining, so we can easily overload it with -e for private script compilation e.g.
 #
