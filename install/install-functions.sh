@@ -33,21 +33,29 @@ if [ _"$WODAPIDBUSER" = _"" ]; then
 	echo "You need to configure WODAPIDBUSER in your $WODGROUP ansible variable file"
 	WODAPIDBUSER="moderator"
 	echo "Using default $WODAPIDBUSER instead"
+	# It wasn't in an ansible var file so adding it so others can use it
+	echo "WODAPIDBUSER: $WODAPIDBUSER" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
 fi
 if [ _"$WODAPIDBUSERPWD" = _"" ]; then
 	echo "You need to configure WODAPIDBUSERPWD in your $WODGROUP ansible variable file"
 	WODAPIDBUSERPWD="UnMotDePassCompliqué"
 	echo "Using default $WODAPIDBUSERPWD instead"
+	# It wasn't in an ansible var file so adding it so others can use it
+	echo "WODAPIDBUSERPWD: $WODAPIDBUSERPWD" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
 fi
 if [ _"$WODAPIDBADMIN" = _"" ]; then
 	echo "You need to configure WODAPIDBADMIN in your $WODGROUP ansible variable file"
 	WODAPIDBADMIN="hackshack"
 	echo "Using default $WODAPIDBADMIN instead"
+	# It wasn't in an ansible var file so adding it so others can use it
+	echo "WODAPIDBADMIN: $WODAPIDBADMIN" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
 fi
 if [ _"$WODAPIDBADMINPWD" = _"" ]; then
 	echo "You need to configure WODAPIDBADMINPWD in your $WODGROUP ansible variable file"
 	WODAPIDBADMINPWD="UnAutreMotDePassCompliqué"
 	echo "Using default $WODAPIDBADMINPWD instead"
+	# It wasn't in an ansible var file so adding it so others can use it
+	echo "WODAPIDBADMINPWD: $WODAPIDBADMINPWD" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
 fi
 export WODAPIDBUSER
 export WODAPIDBUSERPWD
