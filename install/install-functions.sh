@@ -10,53 +10,11 @@ set -e
 
 # This function fetches the DB user/passwd
 get_wodapidb_userpwd() {
-if [ -f "$WODANSIBLEDIR/group_vars/$WODGROUP" ]; then
-	WODAPIDBUSER=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSER' | sed 's/"//g'`
-	if [ _"$WODAPIDBUSER" = _"null" ]; then
-		WODAPIDBUSER=""
-	fi
-	WODAPIDBADMIN=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMIN' | sed 's/"//g'`
-	if [ _"$WODAPIDBADMIN" = _"null" ]; then
-		WODAPIDBADMIN=""
-	fi
-	WODAPIDBUSERPWD=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSERPWD' | sed 's/"//g'`
-	if [ _"$WODAPIDBUSERPWD" = _"null" ]; then
-		WODAPIDBUSERPWD=""
-	fi
-	WODAPIDBADMINPWD=`cat ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
-	if [ _"$WODAPIDBADMINPWD" = _"null" ]; then
-		WODAPIDBADMINPWD=""
-	fi
-fi
+WODAPIDBUSER=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSER' | sed 's/"//g'`
+WODAPIDBADMIN=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMIN' | sed 's/"//g'`
+WODAPIDBUSERPWD=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSERPWD' | sed 's/"//g'`
+WODAPIDBADMINPWD=`cat ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
 
-if [ _"$WODAPIDBUSER" = _"" ]; then
-	echo "You need to configure WODAPIDBUSER in your $WODGROUP ansible variable file"
-	WODAPIDBUSER="moderator"
-	echo "Using default $WODAPIDBUSER instead"
-	# It wasn't in an ansible var file so adding it so others can use it
-	echo "WODAPIDBUSER: $WODAPIDBUSER" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
-fi
-if [ _"$WODAPIDBUSERPWD" = _"" ]; then
-	echo "You need to configure WODAPIDBUSERPWD in your $WODGROUP ansible variable file"
-	WODAPIDBUSERPWD="UnMotDePassCompliqué"
-	echo "Using default $WODAPIDBUSERPWD instead"
-	# It wasn't in an ansible var file so adding it so others can use it
-	echo "WODAPIDBUSERPWD: $WODAPIDBUSERPWD" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
-fi
-if [ _"$WODAPIDBADMIN" = _"" ]; then
-	echo "You need to configure WODAPIDBADMIN in your $WODGROUP ansible variable file"
-	WODAPIDBADMIN="hackshack"
-	echo "Using default $WODAPIDBADMIN instead"
-	# It wasn't in an ansible var file so adding it so others can use it
-	echo "WODAPIDBADMIN: $WODAPIDBADMIN" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
-fi
-if [ _"$WODAPIDBADMINPWD" = _"" ]; then
-	echo "You need to configure WODAPIDBADMINPWD in your $WODGROUP ansible variable file"
-	WODAPIDBADMINPWD="UnAutreMotDePassCompliqué"
-	echo "Using default $WODAPIDBADMINPWD instead"
-	# It wasn't in an ansible var file so adding it so others can use it
-	echo "WODAPIDBADMINPWD: $WODAPIDBADMINPWD" >> $WODANSIBLEPRIVDIR/generated/$WODGROUP
-fi
 export WODAPIDBUSER
 export WODAPIDBUSERPWD
 export WODAPIDBADMIN
