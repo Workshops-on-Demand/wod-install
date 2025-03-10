@@ -11,53 +11,22 @@ set -e
 # This function fetches the DB user/passwd
 get_wodapidb_userpwd() {
 if [ -f "$WODANSIBLEDIR/group_vars/$WODGROUP" ]; then
-	WODAPIDBUSER=`cat "$WODANSIBLEDIR/group_vars/$WODGROUP" | yq '.WODAPIDBUSER' | sed 's/"//g'`
+	WODAPIDBUSER=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSER' | sed 's/"//g'`
 	if [ _"$WODAPIDBUSER" = _"null" ]; then
 		WODAPIDBUSER=""
 	fi
-	WODAPIDBADMIN=`cat "$WODANSIBLEDIR/group_vars/$WODGROUP" | yq '.WODAPIDBADMIN' | sed 's/"//g'`
+	WODAPIDBADMIN=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMIN' | sed 's/"//g'`
 	if [ _"$WODAPIDBADMIN" = _"null" ]; then
 		WODAPIDBADMIN=""
 	fi
-	WODAPIDBUSERPWD=`cat "$WODANSIBLEDIR/group_vars/$WODGROUP" | yq '.WODAPIDBUSERPWD' | sed 's/"//g'`
+	WODAPIDBUSERPWD=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSERPWD' | sed 's/"//g'`
 	if [ _"$WODAPIDBUSERPWD" = _"null" ]; then
 		WODAPIDBUSERPWD=""
 	fi
-	WODAPIDBADMINPWD=`cat "$WODANSIBLEDIR/group_vars/$WODGROUP" | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
+	WODAPIDBADMINPWD=`cat ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
 	if [ _"$WODAPIDBADMINPWD" = _"null" ]; then
 		WODAPIDBADMINPWD=""
 	fi
-fi
-if [ -f "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" ]; then
-	WODAPIDBUSER2=`cat "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" | yq '.WODAPIDBUSER' | sed 's/"//g'`
-	if [ _"$WODAPIDBUSER2" = _"null" ]; then
-		WODAPIDBUSER2=""
-	fi
-	WODAPIDBADMIN2=`cat "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" | yq '.WODAPIDBADMIN' | sed 's/"//g'`
-	if [ _"$WODAPIDBADMIN2" = _"null" ]; then
-		WODAPIDBADMIN2=""
-	fi
-	WODAPIDBUSERPWD2=`cat "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" | yq '.WODAPIDBUSERPWD' | sed 's/"//g'`
-	if [ _"$WODAPIDBUSERPWD2" = _"null" ]; then
-		WODAPIDBUSERPWD2=""
-	fi
-	WODAPIDBADMINPWD2=`cat "$WODANSIBLEPRIVDIR/group_vars/$WODGROUP" | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
-	if [ _"$WODAPIDBADMINPWD2" = _"null" ]; then
-		WODAPIDBADMINPWD2=""
-	fi
-fi
-# Overload standard with private if anything declared there
-if [ _"$WODAPIDBUSER2" != _"" ]; then
-	WODAPIDBUSER=$WODAPIDBUSER2
-fi
-if [ _"$WODAPIDBUSERPWD2" != _"" ]; then
-	WODAPIDBUSERPWD=$WODAPIDBUSERPWD2
-fi
-if [ _"$WODAPIDBADMIN2" != _"" ]; then
-	WODAPIDBADMIN=$WODAPIDBADMIN2
-fi
-if [ _"$WODAPIDBADMINPWD2" != _"" ]; then
-	WODAPIDBADMINPWD=$WODAPIDBADMINPWD2
 fi
 
 if [ _"$WODAPIDBUSER" = _"" ]; then
