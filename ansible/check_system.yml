@@ -289,15 +289,6 @@
     mode: "0644"
   with_fileglob: ['{{ WODSYSDIR }}//wod-*.service.j2', '{{ WODSYSPRIVDIR }}//wod-*.service.j2']
 
-- name: Enable fail2ban
-  become: true
-  become_user: root
-  ansible.builtin.systemd:
-    state: started
-    daemon_reload: true
-    enabled: true
-    name: fail2ban
-
 - name: Enable WoD services
   become: true
   become_user: root
@@ -308,6 +299,19 @@
     name: "{{ item }}"
   with_items:
     - wod-kill-processes
+    - fail2ban
+
+- name: Setup crontab for daily delivery of ansible instantiated files
+  become: true
+  become_user: root
+  ansible.builtin.cron:
+    name: wod-deliver
+    minute: "{{ 59 | random(seed=inventory_hostname) }} "
+    hour: "04"
+    user: "{{ WODUSER }}"
+    job: /usr/local/bin/wod-deliver
+    cron_file: wod-deliver
+    state: present
 
 - name: Test private tasks YAML file
   ansible.builtin.command: ls "{{ WODANSIBLEPRIVDIR }}/check_system.yml"
