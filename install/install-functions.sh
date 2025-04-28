@@ -13,7 +13,7 @@ get_wodapidb_userpwd() {
 WODAPIDBUSER=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSER' | sed 's/"//g'`
 WODAPIDBADMIN=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMIN' | sed 's/"//g'`
 WODAPIDBUSERPWD=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBUSERPWD' | sed 's/"//g'`
-WODAPIDBADMINPWD=`cat ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
+WODAPIDBADMINPWD=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | yq '.WODAPIDBADMINPWD' | sed 's/"//g'`
 
 export WODAPIDBUSER
 export WODAPIDBUSERPWD
