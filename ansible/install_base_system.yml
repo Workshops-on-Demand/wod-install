@@ -2,6 +2,17 @@
 - name: Load variables generated at install time
   ansible.builtin.include_vars: /etc/wod.yml
 
+- name: Ensure that required packages are installed for repo setup
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    pkg:
+      - apt-transport-https
+    state: present
+    update_cache: true
+  when:
+    - ansible_os_family == "Debian"
+
 - name: Ensure that common packages are installed for repo setup
   become: true
   become_user: root
@@ -10,16 +21,6 @@
       - curl
       - gnupg2
     state: present
-    update_cache: true
-
-- name: Ensure that required packages are installed for repo setup
-  become: true
-  become_user: root
-  ansible.builtin.apt:
-    pkg:
-      - apt-transport-https
-  when:
-    - ansible_os_family == "Debian"
 
 - name: Add universe repository into sources list
   become: true
@@ -70,6 +71,16 @@
       - git
     state: present
 
+- name: Ensure all unwanted common base packages are uninstalled
+  become: true
+  become_user: root
+  ansible.builtin.package:
+    pkg:
+      - systemd-timesyncd
+    state: absent
+  when:
+    - ansible_distribution == "Ubuntu"
+
 - name: Ensure all required common base packages are installed
   become: true
   become_user: root
@@ -77,6 +88,7 @@
     pkg:
       - ntp
       - python3-virtualenv
+    state: present
   when:
     - ansible_distribution == "CentOS" or ansible_distribution == "Ubuntu"
 
@@ -90,6 +102,7 @@
       - iputils-ping
       - python3-venv
       - yq
+    state: present
   when:
     - ansible_distribution == "Ubuntu"
 
@@ -101,6 +114,7 @@
       - chrony
       - cronie
       - epel-release
+    state: present
   when:
     - ansible_distribution == "Rocky" or ansible_distribution == "CentOS"
 
