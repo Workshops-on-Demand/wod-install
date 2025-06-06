@@ -318,8 +318,7 @@ if [ $WODTYPE = "api-db" ]; then
     cat > .env << EOF
 FROM_EMAIL_ADDRESS="$WODSENDER"
 DB_PW=$PGPASSWORD
-# Target user to send mail to, managed with procmail
-POSTFIX_EMAIL=$WODUSER@$WODBEFQDN
+# Target postfix port to send mail to, managed with procmail
 POSTFIX_PORT=$WODPOSTPORT
 FEEDBACK_WORKSHOP_URL="None"
 WODAPIDBPORT=$WODAPIDBPORT
