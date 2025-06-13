@@ -50,7 +50,7 @@ export WODAPIDBEXTFQDN="$WODAPIDBEXTFQDN"
 # Port of the external api-db server
 export WODAPIDBEXTPORT="$WODAPIDBEXTPORT"
 # Combined URL for API access
-export WODAPIDBURL=$WODADIDBURL
+export WODAPIDBURL=$WODAPIDBURL
 # Combined URL for external API access
 export WODAPIDBEXTURL=$WODAPIDBEXTURL
 #
