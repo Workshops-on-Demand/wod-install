@@ -4,25 +4,34 @@ set -e
 set -u
 set -o pipefail
 
-WODBEPORT=8000
-WODBEEXTPORT=$WODBEPORT
 WODPOSTPORT="10025"
+#
+WODBEPORT=8000
+WODBEPROTO="http"
+WODBEEXTPORT=$WODBEPORT
+WODBEEXTPROTO="http"
 WODFEPORT=8000
+WODFEPROTO="http"
 WODFEEXTPORT=$WODFEPORT
+WODFEEXTPROTO="http"
 WODAPIDBPORT=8021
+WODAPIDBPROTO="http"
 WODAPIDBEXTPORT=$WODAPIDBPORT
+WODAPIDBEXTPROTO="http"
 
 usage() {
-    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport][-n number][-j backendext[:beportext]][-f frontend[:feport]][-w frontendext[:feportext]][-a api-db[:apidbport]][-e api-dbext[:apidbportext]][-u user][-p postport][-k][-s sender]"
+    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-s sender]"
     echo " "
     echo "where:"
     echo "-a api-db    is the FQDN of the REST API/DB server"
     echo "             potentially with a port (default $WODAPIDBPORT)"
+    echo "             potentially with a proto (default $WODAPIDBPROTO)"
     echo "             example: api.internal.example.org  "
     echo "             if empty using the name of the frontend                "
     echo " "
     echo "-b backend   is the FQDN of the backend JupyterHub server,"
     echo "             potentially with a port (default $WODBEPORT)."
+    echo "             potentially with a proto (default $WODBEPROTO)"
     echo "             if empty uses the local name for the backend"
     echo "             If you use multiple backend systems corresponding to "
     echo "             multiple locations, use option -n to give the backend"
@@ -35,6 +44,7 @@ usage() {
     echo " "
     echo "-e api-dbext is the FQDN of the REST API server accessible externally"
     echo "             potentially with a port (default $WODAPIDBEXTPORT)"
+    echo "             potentially with a proto (default $WODAPIDBEXTPROTO)"
     echo "             example: api.external.example.org  "
     echo "             if empty using the name of the api-db                "
     echo "             useful when the name given with -a doesn't resolve from "
@@ -42,6 +52,7 @@ usage() {
     echo " "
     echo "-f frontend  is the FQDN of the frontend Web server"
     echo "             potentially with a port (default $WODFEPORT)."
+    echo "             potentially with a proto (default $WODFEPROTO)"
     echo "             example: fe.external.example.org  "
     echo "             if empty using the name of the backend                "
     echo " "
@@ -58,6 +69,7 @@ usage() {
     echo " "
     echo "-j backext   is the FQDN of the backend JupyterHub server accessible externally"
     echo "             potentially with a port (default $WODBEEXTPORT)."
+    echo "             potentially with a proto (default $WODBEEXTPROTO)"
     echo "             example: jupyterhub.external.example.org  "
     echo "             if empty using the name of the backend                "
     echo "             useful when the name given with -b doesn't resolve from "
@@ -102,6 +114,7 @@ usage() {
     echo "             if empty using wodadmin               "
     echo "-w frontext  is the FQDN of the frontend JupyterHub server accessible externally"
     echo "             potentially with a port (default $WODFEEXTPORT)."
+    echo "             potentially with a proto (default $WODFEEXTPROTO)"
     echo "             example: frontend.external.example.org  "
     echo "             if empty using the name of the frontend                "
     echo "             useful to solve CORS errors when external and internal names"
@@ -110,7 +123,7 @@ usage() {
     echo " "
     echo "Full installation example of a stack with:"
     echo "- 2 backend servers be1 and be2 using port 8010"
-    echo "- 1 api-db server apidb on port 10000"
+    echo "- 1 api-db server apidb on port 10000 using https"
     echo "- 1 frontend server front on port 8000"
     echo "- all declared on the .local network"
     echo "- internal postfix server running on port 9000"
@@ -119,19 +132,19 @@ usage() {
     echo "- management user being wodmgr"
     echo " "
     echo "On the be1 machine:"
-    echo "  ./install.sh -a apidb.local:10000 -f front.local:8000 \\"
+    echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
     echo "  -b be1.local:8010 -n 1 -t backend \\"
     echo "On the be2 machine:"
-    echo "  ./install.sh -a apidb.local:10000 -f front.local:8000 \\"
+    echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
     echo "  -b be2.local:8010 -n 2 -t backend \\"
     echo "On the apidb machine:"
-    echo "  ./install.sh -a apidb.local:10000 -f front.local:8000 \\"
+    echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
     echo "  -b be1.local:8010,be2.local:8010 -t api-db \\"
     echo "On the frontend machine:"
-    echo "  ./install.sh -a apidb.local:10000 -f front.local:8000 \\"
+    echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
     echo "  -t frontend \\"
 }
@@ -226,15 +239,17 @@ fi
 # Here we have either a single backend for backend install
 # WODBEFQDN will point to its FQDN
 # WODBEPORT will point to its port
+# WODBEPROTO will point to its proto
 # or we have multiple of these when installing an api-db
-# WODBEFQDN will point to the list of backends with ports seprarated with ,
-# WODBEPORT will be default and not used later.
+# WODBEFQDN will point to the list of backends with ports and proto separated with ','
+# WODBEPORT will be default and not used later
+# WODBEPROTO will be default and not used later
 MULTIBCKEND=0
 if [ ! -z "${b}" ]; then
     WODBEFQDN="`echo ${b} | cut -d: -f1`"
     res=`echo "${b}" | { grep ',' || true; }`
     if [ _"$res" != _"" ]; then
-   # We have multiple backends only meaningful in api-db install
+        # We have multiple backends only meaningful in api-db install
         if [ $WODTYPE = "api-db" ]; then
             WODBEFQDN="${b}"
             MULTIBCKEND=1
@@ -249,6 +264,10 @@ if [ ! -z "${b}" ]; then
         res=`echo "${b}" | { grep ':' || true; }`
         if [ _"$res" != _"" ]; then
             WODBEPORT="`echo ${b} | cut -d: -f2`"
+            PROTO="`echo ${b} | cut -d: -f3`"
+            if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+                WODBEPROTO=$PROTO
+            fi
         fi
     fi
 else
@@ -276,6 +295,10 @@ if [ ! -z "${f}" ]; then
     res=`echo "${f}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODFEPORT="`echo ${f} | cut -d: -f2`"
+        PROTO="`echo ${b} | cut -d: -f3`"
+        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            WODFEPROTO=$PROTO
+        fi
     fi
 else
     WODFEFQDN="`echo $WODBEFQDN | cut -d: -f1`"
@@ -286,6 +309,10 @@ if [ ! -z "${w}" ]; then
     res=`echo "${w}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODFEEXTPORT="`echo ${w} | cut -d: -f2`"
+        PROTO="`echo ${b} | cut -d: -f3`"
+        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            WODFEEXTPROTO=$PROTO
+        fi
     fi
 else
     WODFEEXTFQDN="`echo $WODFEFQDN | cut -d: -f1`"
@@ -296,6 +323,10 @@ if [ ! -z "${a}" ]; then
     res=`echo "${a}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODAPIDBPORT="`echo ${a} | cut -d: -f2`"
+        PROTO="`echo ${b} | cut -d: -f3`"
+        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            WODAPIDBPROTO=$PROTO
+        fi
     fi
 else
     WODAPIDBFQDN=$WODFEFQDN
@@ -306,6 +337,10 @@ if [ ! -z "${e}" ]; then
     res=`echo "${e}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODAPIDBEXTPORT="`echo ${e} | cut -d: -f2`"
+        PROTO="`echo ${b} | cut -d: -f3`"
+        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            WODAPIDBEXTPROTO=$PROTO
+        fi
     fi
 else
     WODAPIDBEXTFQDN=$WODAPIDBFQDN
@@ -316,6 +351,10 @@ if [ ! -z "${j}" ]; then
     res=`echo "${j}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODBEEXTPORT="`echo ${j} | cut -d: -f2`"
+        PROTO="`echo ${b} | cut -d: -f3`"
+        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            WODBEEXTPROTO=$PROTO
+        fi
     fi
 else
     WODBEEXTFQDN=$WODBEFQDN
@@ -360,7 +399,7 @@ if [ ! -z "${g}" ]; then
 else
     WODGROUP="production"
 fi
-export WODGROUP WODFEFQDN WODBEFQDN WODAPIDBFQDN WODFEEXTFQDN WODBEEXTFQDN WODAPIDBEXTFQDN WODTYPE WODBEPORT WODFEPORT WODAPIDBPORT WODBEEXTPORT WODFEEXTPORT WODAPIDBEXTPORT WODPOSTPORT
+export WODGROUP WODFEFQDN WODBEFQDN WODAPIDBFQDN WODFEEXTFQDN WODBEEXTFQDN WODAPIDBEXTFQDN WODTYPE WODBEPORT WODFEPORT WODAPIDBPORT WODBEEXTPORT WODFEEXTPORT WODAPIDBEXTPORT WODPOSTPORT WODBEPROTO WODFEPROTO WODAPIDBPROTO WODBEEXTPROTO WODFEEXTPROTO WODAPIDBEXTPROTO
 
 WODDISTRIB=`grep -E '^ID=' /etc/os-release | cut -d= -f2 | sed 's/"//g'`-`grep -E '^VERSION_ID=' /etc/os-release | cut -d= -f2 | sed 's/"//g'`
 res=`echo $WODDISTRIB | { grep -i rocky || true; }`
@@ -371,27 +410,27 @@ else
     export WODDISTRIB
 fi
 echo "Installing a Workshop on Demand $WODTYPE environment"
-echo "Using api-db $WODAPIDBFQDN on port $WODAPIDBPORT"
+echo "Using api-db $WODAPIDBFQDN on port $WODAPIDBPORT proto $WODAPIDBPROTO"
 if [ _"$WODAPIDBEXTFQDN" != _"$WODAPIDBFQDN" ]; then
-    echo "Using external api-db $WODAPIDBEXTFQDN on port $WODAPIDBEXTPORT"
+    echo "Using external api-db $WODAPIDBEXTFQDN on port $WODAPIDBEXTPORT proto $WODAPIDBEXTPROTO"
 fi
 if [ _"$MULTIBCKEND" = _"1" ]; then
     echo "Using backends $WODBEFQDN (with first IP $WODBEIP)"
 else
-    echo "Using backend $WODBEFQDN ($WODBEIP) on port $WODBEPORT"
+    echo "Using backend $WODBEFQDN ($WODBEIP) on port $WODBEPORT proto $WODBEPROTO"
 fi
 if [ _"$WODBEEXTFQDN" != _"$WODBEFQDN" ]; then
-    echo "Using external backend $WODBEEXTFQDN on port $WODBEEXTPORT"
+    echo "Using external backend $WODBEEXTFQDN on port $WODBEEXTPORT proto $WODBEEXTPROTO"
 fi
 echo "Using groupname $WODGROUP"
 echo "Using WoD user $WODUSER"
 echo "Using WoD base student coef $WODBENBR"
 
 if [ $WODTYPE != "appliance" ]; then
-    echo "Using frontend $WODFEFQDN on port $WODFEPORT"
+    echo "Using frontend $WODFEFQDN on port $WODFEPORT proto $WODFEPROTO"
 fi
 if [ _"$WODFEEXTFQDN" != _"$WODFEFQDN" ]; then
-    echo "Using external frontend $WODFEEXTFQDN on port $WODFEEXTPORT"
+    echo "Using external frontend $WODFEEXTFQDN on port $WODFEEXTPORT proto $WODFEEXTPROTO"
 fi
 
 SUDOUSR=${SUDO_USER:-}
@@ -574,6 +613,12 @@ export WODAPIDBPORT="$WODAPIDBPORT"
 export WODFEEXTPORT="$WODFEEXTPORT"
 export WODBEEXTPORT="$WODBEEXTPORT"
 export WODAPIDBEXTPORT="$WODAPIDBEXTPORT"
+export WODFEPROTO="$WODFEPROTO"
+export WODBEPROTO="$WODBEPROTO"
+export WODAPIDBPROTO="$WODAPIDBPROTO"
+export WODFEEXTPROTO="$WODFEEXTPROTO"
+export WODBEEXTPROTO="$WODBEEXTPROTO"
+export WODAPIDBEXTPROTO="$WODAPIDBEXTPROTO"
 export WODPOSTPORT="$WODPOSTPORT"
 export WODBENBR="$WODBENBR"
 export SENDGRID_API_KEY="$SENDGRID_API_KEY"
@@ -583,7 +628,7 @@ EOF
     su - $WODUSER -c "source /tmp/wodexports ; $EXEPATH/install-system-common.sh"
     rm -f /tmp/wodexports
 else
-    su - $WODUSER -w WODGROUP,WODFEFQDN,WODBEFQDN,WODAPIDBFQDN,WODFEEXTFQDN,WODBEEXTFQDN,WODAPIDBEXTFQDN,WODTYPE,WODBEIP,WODDISTRIB,WODUSER,WODFEREPO,WODBEREPO,WODAPIREPO,WODNOBOREPO,WODPRIVREPO,WODINSREPO,WODFEBRANCH,WODBEBRANCH,WODAPIDBBRANCH,WODNOBOBRANCH,WODPRIVBRANCH,WODINSBRANCH,WODSENDER,WODGENKEYS,WODTMPDIR,WODFEPORT,WODBEPORT,WODAPIDBPORT,WODFEEXTPORT,WODBEEXTPORT,WODAPIDBEXTPORT,WODPOSTPORT,WODBENBR,SENDGRID_API_KEY,WODDENYLIST -c "$EXEPATH/install-system-common.sh"
+    su - $WODUSER -w WODGROUP,WODFEFQDN,WODBEFQDN,WODAPIDBFQDN,WODFEEXTFQDN,WODBEEXTFQDN,WODAPIDBEXTFQDN,WODTYPE,WODBEIP,WODDISTRIB,WODUSER,WODFEREPO,WODBEREPO,WODAPIREPO,WODNOBOREPO,WODPRIVREPO,WODINSREPO,WODFEBRANCH,WODBEBRANCH,WODAPIDBBRANCH,WODNOBOBRANCH,WODPRIVBRANCH,WODINSBRANCH,WODSENDER,WODGENKEYS,WODTMPDIR,WODFEPORT,WODBEPORT,WODAPIDBPORT,WODFEEXTPORT,WODBEEXTPORT,WODAPIDBEXTPORT,WODFEPROTO,WODBEPROTO,WODAPIDBPROTO,WODFEEXTPROTO,WODBEEXTPROTO,WODAPIDBEXTPROTO,WODPOSTPORT,WODBENBR,SENDGRID_API_KEY,WODDENYLIST -c "$EXEPATH/install-system-common.sh"
 fi
 
 echo "Setting up original rights for $WODHDIR with $BKPSTAT"
