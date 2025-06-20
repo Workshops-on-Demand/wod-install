@@ -295,12 +295,13 @@ if [ ! -z "${f}" ]; then
     res=`echo "${f}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODFEPORT="`echo ${f} | cut -d: -f2`"
-        PROTO="`echo ${b} | cut -d: -f3`"
+        PROTO="`echo ${f} | cut -d: -f3`"
         if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
             WODFEPROTO=$PROTO
         fi
     fi
 else
+    # TODO: relevant ?
     WODFEFQDN="`echo $WODBEFQDN | cut -d: -f1`"
 fi
 
@@ -309,13 +310,15 @@ if [ ! -z "${w}" ]; then
     res=`echo "${w}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODFEEXTPORT="`echo ${w} | cut -d: -f2`"
-        PROTO="`echo ${b} | cut -d: -f3`"
+        PROTO="`echo ${w} | cut -d: -f3`"
         if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
             WODFEEXTPROTO=$PROTO
         fi
     fi
 else
-    WODFEEXTFQDN="`echo $WODFEFQDN | cut -d: -f1`"
+    WODFEEXTFQDN=$WODFEFQDN
+    WODFEEXTPORT=$WODFEPORT
+    WODFEEXTPROTO=$WODFEPROTO
 fi
 
 if [ ! -z "${a}" ]; then
@@ -323,12 +326,13 @@ if [ ! -z "${a}" ]; then
     res=`echo "${a}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODAPIDBPORT="`echo ${a} | cut -d: -f2`"
-        PROTO="`echo ${b} | cut -d: -f3`"
+        PROTO="`echo ${a} | cut -d: -f3`"
         if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
             WODAPIDBPROTO=$PROTO
         fi
     fi
 else
+    # TODO: relevant ?
     WODAPIDBFQDN=$WODFEFQDN
 fi
 
@@ -337,13 +341,15 @@ if [ ! -z "${e}" ]; then
     res=`echo "${e}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODAPIDBEXTPORT="`echo ${e} | cut -d: -f2`"
-        PROTO="`echo ${b} | cut -d: -f3`"
+        PROTO="`echo ${e} | cut -d: -f3`"
         if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
             WODAPIDBEXTPROTO=$PROTO
         fi
     fi
 else
     WODAPIDBEXTFQDN=$WODAPIDBFQDN
+    WODAPIDBEXTPORT=$WODAPIDBPORT
+    WODAPIDBEXTPROTO=$WODAPIDBPROTO
 fi
 
 if [ ! -z "${j}" ]; then
@@ -351,13 +357,15 @@ if [ ! -z "${j}" ]; then
     res=`echo "${j}" | { grep ':' || true; }`
     if [ _"$res" != _"" ]; then
         WODBEEXTPORT="`echo ${j} | cut -d: -f2`"
-        PROTO="`echo ${b} | cut -d: -f3`"
+        PROTO="`echo ${j} | cut -d: -f3`"
         if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
             WODBEEXTPROTO=$PROTO
         fi
     fi
 else
     WODBEEXTFQDN=$WODBEFQDN
+    WODBEEXTPORT=$WODBEPORT
+    WODBEEXTPROTO=$WODBEPROTO
 fi
 
 # This IP address is for the backend only so makes only sense deploying a backend server

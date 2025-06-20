@@ -35,6 +35,7 @@ WODBEAPIURL="$WODBEPROTO://$WODBEFQDN:$WODBEPORT"
 
 cat > /etc/wod.sh << EOF
 # This is the wod.sh script, generated at install
+# Please do not modify directly
 #
 # Name of the admin user
 export WODUSER=$WODUSER
@@ -223,6 +224,9 @@ if [ $WODTYPE != "appliance" ]; then
     # Setup this using the group for WoD
     mkdir -p  $WODANSIBLEPRIVDIR/generated
     cat > $WODANSIBLEPRIVDIR/generated/$WODGROUP << EOF
+# This is the $WODGROUP ansible file, generated at install
+# Please do not modify directly
+#
 WODGROUP: $WODGROUP
 # 
 # Installation specific values
