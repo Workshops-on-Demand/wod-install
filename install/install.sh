@@ -9,15 +9,15 @@ WODPOSTPORT="10025"
 WODBEPORT=8000
 WODBEPROTO="http"
 WODBEEXTPORT=$WODBEPORT
-WODBEEXTPROTO="http"
+WODBEEXTPROTO="$WODBEPROTO"
 WODFEPORT=8000
 WODFEPROTO="http"
 WODFEEXTPORT=$WODFEPORT
-WODFEEXTPROTO="http"
+WODFEEXTPROTO="$WODFEPROTO"
 WODAPIDBPORT=8021
 WODAPIDBPROTO="http"
 WODAPIDBEXTPORT=$WODAPIDBPORT
-WODAPIDBEXTPROTO="http"
+WODAPIDBEXTPROTO="$WODAPIDBPROTO"
 
 usage() {
     echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-s sender]"
