@@ -273,6 +273,46 @@ if [ ! -z "${b}" ]; then
 else
     WODBEFQDN=`hostname -f`
 fi
+# Here we have either a single backend for backend install
+# WODBEEXTFQDN will point to its FQDN
+# WODBEEXTPORT will point to its port
+# WODBEEXTPROTO will point to its proto
+# or we have multiple of these when installing an api-db
+# WODBEEXTFQDN will point to the list of backends with ports and proto separated with ','
+# WODBEEXTPORT will be default and not used later
+# WODBEEXTPROTO will be default and not used later
+
+if [ ! -z "${j}" ]; then
+    WODBEEXTFQDN="`echo ${j} | cut -d: -f1`"
+    res=`echo "${j}" | { grep ',' || true; }`
+    if [ _"$res" != _"" ]; then
+        # We have multiple backends only meaningful in api-db install
+        if [ $WODTYPE = "api-db" ]; then
+            WODBEFQDN="${j}"
+            MULTIBCKEND=1
+        else
+            echo "Multiple backends are only possible when installing an api-db machine"
+            echo " "
+            usage
+            exit -1
+        fi
+    else
+        # Single backend get its port
+        res=`echo "${j}" | { grep ':' || true; }`
+        if [ _"$res" != _"" ]; then
+            WODBEEXTPORT="`echo ${j} | cut -d: -f2`"
+            PROTO="`echo ${j} | cut -d: -f3`"
+            if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+                WODBEEXTPROTO=$PROTO
+            fi
+        fi
+    fi
+else
+    WODBEEXTFQDN=$WODBEFQDN
+    WODBEEXTPORT=$WODBEPORT
+    WODBEEXTPROTO=$WODBEPROTO
+fi
+
 
 # In case of multiple backends, record which number this one is.
 # only valid for backend install
@@ -350,22 +390,6 @@ else
     WODAPIDBEXTFQDN=$WODAPIDBFQDN
     WODAPIDBEXTPORT=$WODAPIDBPORT
     WODAPIDBEXTPROTO=$WODAPIDBPROTO
-fi
-
-if [ ! -z "${j}" ]; then
-    WODBEEXTFQDN="`echo ${j} | cut -d: -f1`"
-    res=`echo "${j}" | { grep ':' || true; }`
-    if [ _"$res" != _"" ]; then
-        WODBEEXTPORT="`echo ${j} | cut -d: -f2`"
-        PROTO="`echo ${j} | cut -d: -f3`"
-        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
-            WODBEEXTPROTO=$PROTO
-        fi
-    fi
-else
-    WODBEEXTFQDN=$WODBEFQDN
-    WODBEEXTPORT=$WODBEPORT
-    WODBEEXTPROTO=$WODBEPROTO
 fi
 
 # This IP address is for the backend only so makes only sense deploying a backend server
