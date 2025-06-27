@@ -265,7 +265,7 @@ if [ ! -z "${b}" ]; then
         if [ _"$res" != _"" ]; then
             WODBEPORT="`echo ${b} | cut -d: -f2`"
             PROTO="`echo ${b} | cut -d: -f3`"
-            if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            if [ _"$PROTO" = _"http" ] || [ _"$PROTO" = _"https" ]; then
                 WODBEPROTO=$PROTO
             fi
         fi
@@ -302,7 +302,7 @@ if [ ! -z "${j}" ]; then
         if [ _"$res" != _"" ]; then
             WODBEEXTPORT="`echo ${j} | cut -d: -f2`"
             PROTO="`echo ${j} | cut -d: -f3`"
-            if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+            if [ _"$PROTO" = _"http" ] || [ _"$PROTO" = _"https" ]; then
                 WODBEEXTPROTO=$PROTO
             fi
         fi
@@ -336,7 +336,7 @@ if [ ! -z "${f}" ]; then
     if [ _"$res" != _"" ]; then
         WODFEPORT="`echo ${f} | cut -d: -f2`"
         PROTO="`echo ${f} | cut -d: -f3`"
-        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+        if [ _"$PROTO" = _"http" ] || [ _"$PROTO" = _"https" ]; then
             WODFEPROTO=$PROTO
         fi
     fi
@@ -351,7 +351,7 @@ if [ ! -z "${w}" ]; then
     if [ _"$res" != _"" ]; then
         WODFEEXTPORT="`echo ${w} | cut -d: -f2`"
         PROTO="`echo ${w} | cut -d: -f3`"
-        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+        if [ _"$PROTO" = _"http" ] || [ _"$PROTO" = _"https" ]; then
             WODFEEXTPROTO=$PROTO
         fi
     fi
@@ -367,7 +367,7 @@ if [ ! -z "${a}" ]; then
     if [ _"$res" != _"" ]; then
         WODAPIDBPORT="`echo ${a} | cut -d: -f2`"
         PROTO="`echo ${a} | cut -d: -f3`"
-        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+        if [ _"$PROTO" = _"http" ] || [ _"$PROTO" = _"https" ]; then
             WODAPIDBPROTO=$PROTO
         fi
     fi
@@ -382,7 +382,7 @@ if [ ! -z "${e}" ]; then
     if [ _"$res" != _"" ]; then
         WODAPIDBEXTPORT="`echo ${e} | cut -d: -f2`"
         PROTO="`echo ${e} | cut -d: -f3`"
-        if [ _"$PROTO" = "http" ] || [ _"$PROTO" = "https" ]; then
+        if [ _"$PROTO" = _"http" ] || [ _"$PROTO" = _"https" ]; then
             WODAPIDBEXTPROTO=$PROTO
         fi
     fi
