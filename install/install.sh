@@ -485,6 +485,7 @@ echo "Install starting at `date`"
 # Get path of execution
 EXEPATH=`dirname "$0"`
 export EXEPATH=`( cd "$EXEPATH" && pwd )`
+(cd $EXEPATH && git rev-parse HEAD ; date) >> $HDIR/.wodinstall/all-install.log
 
 source $EXEPATH/install.repo
 # Overload WODPRIVREPO if using a private one
@@ -496,7 +497,7 @@ export WODFEBRANCH WODBEBRANCH WODAPIDBBRANCH WODNOBOBRANCH WODPRIVBRANCH WODINS
 # Potential Variables needed for Sendgrid, Slack and mail check
 # Key to use when sending mail through sendgrid - Not mandatory off by default
 export SENDGRID_API_KEY=${SENDGRID_API_KEY:="None"}
-# Black list these ameil adresses
+# Black list these email adresses
 export WODDENYLIST=${WODDENYLIST:='@1secmail.com,@1secmail.org'}
 
 echo "Installation environment :"
