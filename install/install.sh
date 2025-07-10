@@ -599,7 +599,7 @@ export WODGENKEYS WODINSECURE
 
 echo "Installation environment :"
 echo "---------------------------"
-env | grep WOD
+env | grep WOD | sort
 echo "---------------------------"
 
 # Call the distribution specific install script
