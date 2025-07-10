@@ -20,7 +20,7 @@ WODAPIDBEXTPORT=$WODAPIDBPORT
 WODAPIDBEXTPROTO="$WODAPIDBPROTO"
 
 usage() {
-    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-s sender]"
+    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-c][-s sender]"
     echo " "
     echo "where:"
     echo "-a api-db    is the FQDN of the REST API/DB server"
@@ -78,9 +78,15 @@ usage() {
     echo "-k           if used, force the re-creation of ssh keys for"
     echo "             the previously created admin user"
     echo "             if not used keep the existing keys in place if any"
-    echo "            (backed up and restored)"
+    echo "             (backed up and restored)"
     echo "             if the name of the admin user is changed, new keys "
     echo "             systematically re-created"
+    echo " "
+    echo "-c           if used, force insecured curl communications"
+    echo "             this is particularly useful for self-signed certificate"
+    echo "             on https services"
+    echo "             if not used keep curl verification, preventing self-signed"
+    echo "             certificates to work"
     echo " "
     echo "-n           if used, this indicates the number of the backend "
     echo "             currently installed"
@@ -166,8 +172,9 @@ p=""
 n=""
 w=""
 WODGENKEYS=0
+WODINSECURE=0
 
-while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hk" option; do
+while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hkc" option; do
     case "${option}" in
         t)
             t=${OPTARG}
@@ -215,6 +222,9 @@ while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hk" option; do
             ;;
         k)
             WODGENKEYS=1
+            ;;
+        c)
+            WODINSECURE=1
             ;;
         h)
             usage
@@ -590,7 +600,7 @@ $WODUSER ALL=(ALL) NOPASSWD: ALL
 EOF
 chmod 440 /etc/sudoers.d/$WODUSER
 
-export WODGENKEYS
+export WODGENKEYS WODINSECURE
 
 # Call the distribution specific install script
 echo "Installing $WODDISTRIB specificities for $WODTYPE"
@@ -639,6 +649,7 @@ export WODPRIVBRANCH="$WODPRIVBRANCH"
 export WODINSBRANCH="$WODINSBRANCH"
 export WODSENDER="$WODSENDER"
 export WODGENKEYS="$WODGENKEYS"
+export WODINSECURE="$WODINSECURE"
 export WODTMPDIR="$WODTMPDIR"
 export WODFEPORT="$WODFEPORT"
 export WODBEPORT="$WODBEPORT"
@@ -661,7 +672,7 @@ EOF
     su - $WODUSER -c "source /tmp/wodexports ; $EXEPATH/install-system-common.sh"
     rm -f /tmp/wodexports
 else
-    su - $WODUSER -w WODGROUP,WODFEFQDN,WODBEFQDN,WODAPIDBFQDN,WODFEEXTFQDN,WODBEEXTFQDN,WODAPIDBEXTFQDN,WODTYPE,WODBEIP,WODDISTRIB,WODUSER,WODFEREPO,WODBEREPO,WODAPIREPO,WODNOBOREPO,WODPRIVREPO,WODINSREPO,WODFEBRANCH,WODBEBRANCH,WODAPIDBBRANCH,WODNOBOBRANCH,WODPRIVBRANCH,WODINSBRANCH,WODSENDER,WODGENKEYS,WODTMPDIR,WODFEPORT,WODBEPORT,WODAPIDBPORT,WODFEEXTPORT,WODBEEXTPORT,WODAPIDBEXTPORT,WODFEPROTO,WODBEPROTO,WODAPIDBPROTO,WODFEEXTPROTO,WODBEEXTPROTO,WODAPIDBEXTPROTO,WODPOSTPORT,WODBENBR,SENDGRID_API_KEY,WODDENYLIST -c "$EXEPATH/install-system-common.sh"
+    su - $WODUSER -w WODGROUP,WODFEFQDN,WODBEFQDN,WODAPIDBFQDN,WODFEEXTFQDN,WODBEEXTFQDN,WODAPIDBEXTFQDN,WODTYPE,WODBEIP,WODDISTRIB,WODUSER,WODFEREPO,WODBEREPO,WODAPIREPO,WODNOBOREPO,WODPRIVREPO,WODINSREPO,WODFEBRANCH,WODBEBRANCH,WODAPIDBBRANCH,WODNOBOBRANCH,WODPRIVBRANCH,WODINSBRANCH,WODSENDER,WODGENKEYS,WODINSECURE,WODTMPDIR,WODFEPORT,WODBEPORT,WODAPIDBPORT,WODFEEXTPORT,WODBEEXTPORT,WODAPIDBEXTPORT,WODFEPROTO,WODBEPROTO,WODAPIDBPROTO,WODFEEXTPROTO,WODBEEXTPROTO,WODAPIDBEXTPROTO,WODPOSTPORT,WODBENBR,SENDGRID_API_KEY,WODDENYLIST -c "$EXEPATH/install-system-common.sh"
 fi
 
 echo "Setting up original rights for $WODHDIR with $BKPSTAT"
