@@ -143,6 +143,14 @@ export WODSTUDDIR=/student
 #
 EOF
 fi
+if [ $WODINSECURE != 0 ]; then
+    cat >> /etc/wod.sh << "EOF"
+
+# curl should not check certificates' validity
+export WODCURLOPT="-k"
+#
+EOF
+fi
 
 chmod 755 /etc/wod.sh
 source /etc/wod.sh
