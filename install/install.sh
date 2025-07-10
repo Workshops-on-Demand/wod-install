@@ -510,11 +510,6 @@ export SENDGRID_API_KEY=${SENDGRID_API_KEY:="None"}
 # Black list these email adresses
 export WODDENYLIST=${WODDENYLIST:='@1secmail.com,@1secmail.org'}
 
-echo "Installation environment :"
-echo "---------------------------"
-env | grep WOD
-echo "---------------------------"
-
 export WODTMPDIR=/tmp/wod.$$
 
 # Create the WODUSER user
@@ -601,6 +596,11 @@ EOF
 chmod 440 /etc/sudoers.d/$WODUSER
 
 export WODGENKEYS WODINSECURE
+
+echo "Installation environment :"
+echo "---------------------------"
+env | grep WOD
+echo "---------------------------"
 
 # Call the distribution specific install script
 echo "Installing $WODDISTRIB specificities for $WODTYPE"
