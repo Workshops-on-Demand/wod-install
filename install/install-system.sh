@@ -373,6 +373,7 @@ EOF
     POSTGRES_DB=`cat $WODAPIDBDIR/docker-compose.yml | yq '.services.db.environment.POSTGRES_DB' | sed 's/"//g'`
 	# Manage locations
     #psql --dbname=$POSTGRES_DB --username=postgres --host=localhost -c 'CREATE TABLE IF NOT EXISTS locations ("createdAt" timestamp DEFAULT current_timestamp, "updatedAt" timestamp DEFAULT current_timestamp, "location" varchar CONSTRAINT no_null NOT NULL, "basestdid" integer CONSTRAINT no_null NOT NULL);'
+    # Debugging npm errors in migration: cd wod-api-db ; npx sequelize db:seed:all --debug
     echo "Reset DB data"
     npm run reset-data
     echo "Setup user $WODAPIDBUSER"
@@ -398,20 +399,20 @@ EOF
     psql --dbname=$POSTGRES_DB --username=postgres --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$moderatorroleid','$moderatoruserid');'
     # Map the admin user
     psql --dbname=$POSTGRES_DB --username=postgres --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$adminroleid','$adminuserid');'
-	# Install pm2
-	install_pm2 $WODAPIDBDIR
+    # Install pm2
+    install_pm2 $WODAPIDBDIR
 elif [ $WODTYPE = "frontend" ]; then
     cd $WODFEDIR
     echo "Launching npm install..."
     npm install
     echo "Patching package.json to allow listening on the right host:port"
     perl -pi -e "s|gatsby develop|gatsby develop -H $WODFEFQDN -p $WODFEPORT|" package.json
-	# Install pm2
-	install_pm2 $WODFEDIR
+    # Install pm2
+    install_pm2 $WODFEDIR
 fi
 
 if [ $WODTYPE != "appliance" ]; then
-	# Each node has its own
+    # Each node has its own
     cd $WODANSIBLEDIR
 
     ansible-playbook -i inventory $WODPRIVINV --limit $WODGROUP $WODANSPLAYOPT $WODANSPRIVOPT check_$WODTYPE.yml
