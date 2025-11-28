@@ -224,3 +224,15 @@
     enabled: true
     name: nslcd
   when: WODLDAPSETUP == "1"
+
+- name: Remove now unavailable ref pam_lastlog if present
+  become: true
+  become_user: root
+  ansible.builtin.lineinfile:
+    path: /etc/pam.d/login
+    regexp: 'pam_lastlog.so$'
+    state: absent
+  when:
+    - ansible_distribution == "Ubuntu"
+    - ansible_distribution_major_version >= "24"
+
