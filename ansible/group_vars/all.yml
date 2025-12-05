@@ -25,10 +25,6 @@ BRANDINGX: ""
 SURVEYURL: TBD
 SURVEYCHALURL: TBD
 #
-# This is file a template used to generate WODGROUP ansible variable files used by wod-deliver e.g.
-# It is appended to your WODGROUP ansible file by the installer.
-#
-#
 # You may want to use these variables if you have an OPNSense server as a security FW and allowing http comm internally
 #
 #OPNSENSEKEY:
