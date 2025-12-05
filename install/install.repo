@@ -36,7 +36,7 @@ WODBEREPO="https://github.com/Workshops-on-Demand/wod-backend.git"
 WODPRIVBRANCH="main"
 WODPRIVREPO="https://github.com/Workshops-on-Demand/wod-private.git"
 #
-# Uncomment to use your private repo
+# Uncomment to use your private repo or better use a install.priv file
 #WODPRIVBRANCH="master"
 #WODPRIVREPO="git@github.com:Account/Private-Repo.git wod-private"
 # with token
