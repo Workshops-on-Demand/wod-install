@@ -56,7 +56,9 @@ if (defined $opts{'s'}) {
 		my $ssh = Net::OpenSSH->new($m{$m}->{'name'}, 
 			master_opts => [-o => "StrictHostKeyChecking=no"]);
 		#sudo ./install.sh -t backend -b wod-backend-u2404.wodnet.musique-ancienne.org -a wod-api-db-u2404.wodnet.musique-ancienne.org -f wod-frontend-u2404.wodnet.musique-ancienne.org -g vmtest -s wodadmin@wod-backend-u2404.wodnet.musique-ancienne.org
-		$ssh->system("rm -rf wod-install ; git clone https://github.com/Workshops-on-Demand/wod-install.git ; cd wod-install/install ; echo 'WODBEBRANCH=\"wod-install\"' > install.priv ; echo 'WODFEBRANCH=\"wod-install\"' >> install.priv ; echo 'WODAPIDBBRANCH=\"wod-install\"' >> install.priv ;  echo 'WODPRIVBRANCH=\"wod-install\"' >> install.priv ; nohup sudo -b ./install.sh -t $m -a $m{'api-db'}->{'name'} -b $m{'backend'}->{'name'} -f $m{'frontend'}->{'name'} -g $WODGROUP -s wodadmin\@$m{'backend'}->{'name'}");
+		## With a special branch
+		# $ssh->system("rm -rf wod-install ; git clone https://github.com/Workshops-on-Demand/wod-install.git ; cd wod-install/install ; echo 'WODBEBRANCH=\"wod-install\"' > install.priv ; echo 'WODFEBRANCH=\"wod-install\"' >> install.priv ; echo 'WODAPIDBBRANCH=\"wod-install\"' >> install.priv ;  echo 'WODPRIVBRANCH=\"wod-install\"' >> install.priv ; nohup sudo -b ./install.sh -t $m -a $m{'api-db'}->{'name'} -b $m{'backend'}->{'name'} -f $m{'frontend'}->{'name'} -g $WODGROUP -s wodadmin\@$m{'backend'}->{'name'}");
+		$ssh->system("rm -rf wod-install ; git clone https://github.com/Workshops-on-Demand/wod-install.git ; cd wod-install/install ; nohup sudo -b ./install.sh -t $m -a $m{'api-db'}->{'name'} -b $m{'backend'}->{'name'} -f $m{'frontend'}->{'name'} -g $WODGROUP -s wodadmin\@$m{'backend'}->{'name'}");
 	}
 	exit(0);
 }
