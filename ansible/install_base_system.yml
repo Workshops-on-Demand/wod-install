@@ -11,7 +11,7 @@
     state: present
     update_cache: true
   when:
-    - ansible_fact["os_family"] == "Debian"
+    - ansible_facts["os_family"] == "Debian"
 
 - name: Ensure that common packages are installed for repo setup
   become: true
@@ -26,11 +26,11 @@
   become: true
   become_user: root
   ansible.builtin.apt_repository:
-    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_fact["distribution_release"] }}-security universe
+    repo: deb http://archive.ubuntu.com/ubuntu {{ ansible_facts["distribution_release"] }}-security universe
     state: present
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
-    - ansible_fact["distribution_major_version"] >= "20"
+    - ansible_facts["distribution"] == "Ubuntu"
+    - ansible_facts["distribution_major_version"] >= "20"
 
 - name: Add yq ppa repository into sources list
   become: true
@@ -39,17 +39,17 @@
     repo: ppa:rmescandon/yq
     state: present
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
-    - ansible_fact["distribution_major_version"] <= "22"
+    - ansible_facts["distribution"] == "Ubuntu"
+    - ansible_facts["distribution_major_version"] <= "22"
 
 - name: Add EPEL repository into repo list
   become: true
   become_user: root
   ansible.builtin.yum:
-    name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_fact['distribution_major_version'] }}.noarch.rpm"
+    name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     state: present
   when:
-    - ansible_fact["distribution"] == "CentOS"
+    - ansible_facts["distribution"] == "CentOS"
 
 - name: Update apt cache
   become: true
@@ -58,7 +58,7 @@
     update_cache: true
   changed_when: false
   when:
-    - ansible_fact["os_family"] == "Debian"
+    - ansible_facts["os_family"] == "Debian"
 
 - name: Ensure all required packages are installed
   become: true
@@ -79,7 +79,7 @@
       - systemd-timesyncd
     state: absent
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
+    - ansible_facts["distribution"] == "Ubuntu"
 
 - name: Ensure all required common base packages are installed for RPM based distros
   become: true
@@ -90,7 +90,7 @@
       - python3-virtualenv
     state: present
   when:
-    - ansible_fact["distribution"] == "CentOS" or ansible_fact["distribution"] == "Rocky"
+    - ansible_facts["distribution"] == "CentOS" or ansible_facts["distribution"] == "Rocky"
 
 - name: Ensure all required common base packages are installed for Ubuntu distros < 26
   become: true
@@ -101,8 +101,8 @@
       - python3-virtualenv
     state: present
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
-    - ansible_fact["distribution_major_version"] < "26"
+    - ansible_facts["distribution"] == "Ubuntu"
+    - ansible_facts["distribution_major_version"] < "26"
 
 - name: Ensure all required common base packages are installed for Ubuntu >= 26
   become: true
@@ -113,8 +113,8 @@
       - python3-virtualenv
     state: present
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
-    - ansible_fact["distribution_major_version"] >= "26"
+    - ansible_facts["distribution"] == "Ubuntu"
+    - ansible_facts["distribution_major_version"] >= "26"
 
 - name: Ensure all required Ubuntu packages are installed
   become: true
@@ -128,7 +128,7 @@
       - yq
     state: present
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
+    - ansible_facts["distribution"] == "Ubuntu"
 
 - name: Ensure all required Rocky packages are installed
   become: true
@@ -140,7 +140,7 @@
       - epel-release
     state: present
   when:
-    - ansible_fact["distribution"] == "Rocky" or ansible_fact["distribution"] == "CentOS"
+    - ansible_facts["distribution"] == "Rocky" or ansible_facts["distribution"] == "CentOS"
 
 - name: Ensure all required pip packages are installed
   become: true
@@ -150,7 +150,7 @@
       - yq
     state: present
   when:
-    - ansible_fact["distribution"] == "CentOS" or ansible_fact["distribution"] == "Rocky"
+    - ansible_facts["distribution"] == "CentOS" or ansible_facts["distribution"] == "Rocky"
 
 - name: Configure LDAP client 1/3
   become: true
@@ -223,7 +223,7 @@
       - nss-pam-ldapd
     state: present
   when:
-    - ansible_fact["distribution"] == "CentOS"
+    - ansible_facts["distribution"] == "CentOS"
     - WODLDAPSETUP == "1"
 
 - name: Setup authconfig for LDAP
@@ -236,7 +236,7 @@
   failed_when: cmd_res.rc < 7
   changed_when: false
   when:
-    - ansible_fact["distribution"] == "CentOS"
+    - ansible_facts["distribution"] == "CentOS"
     - WODLDAPSETUP == "1"
 
 - name: Enable nslcd service
@@ -257,6 +257,6 @@
     regexp: 'pam_lastlog.so$'
     state: absent
   when:
-    - ansible_fact["distribution"] == "Ubuntu"
-    - ansible_fact["distribution_major_version"] >= "24"
+    - ansible_facts["distribution"] == "Ubuntu"
+    - ansible_facts["distribution_major_version"] >= "24"
 
