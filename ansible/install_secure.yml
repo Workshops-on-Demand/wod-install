@@ -6,7 +6,7 @@
     pkg:
       - fail2ban
   when:
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
 
 - name: Ensure all required RPM secure packages are installed
   become: true
@@ -15,8 +15,8 @@
     pkg:
       - fail2ban-all
   when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version >= "7"
+    - ansible_facts['distribution'] == "CentOS"
+    - ansible_facts['distribution_major_version'] >= "7"
 
 - name: Configure fail2ban filter
   become: true

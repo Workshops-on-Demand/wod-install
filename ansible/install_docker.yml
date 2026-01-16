@@ -8,7 +8,7 @@
   with_items:
     - https://download.docker.com/linux/centos/gpg
   when:
-    - ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Rocky"
 
 - name: Setup Docker repo for RPM
   become: true
@@ -20,7 +20,7 @@
     enabled: true
     state: present
   when:
-    - ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Rocky"
 
 - name: Add Docker GPG Key to APT
   become: true
@@ -29,9 +29,9 @@
     url: https://download.docker.com/linux/ubuntu/gpg
     state: present
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version >= "20"
-    - ansible_distribution_major_version < "26"
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution']_major_version >= "20"
+    - ansible_facts['distribution']_major_version < "26"
 
 - name: Setup Docker repo for APT
   become: true
@@ -40,8 +40,8 @@
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
     state: present
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version >= "20"
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution']_major_version >= "20"
 
 - name: Setup Docker repo for APT with deb822
   become: true
@@ -56,8 +56,8 @@
     architectures: amd64
     signed_by: https://download.docker.com/linux/ubuntu/gpg
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version >= "26"
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution']_major_version >= "26"
 
 - name: Ensure no existing incorrect docker pkg is installed
   become: true

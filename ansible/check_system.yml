@@ -65,8 +65,8 @@
     - "22"
     - "123"
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version >= "20"
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution_major_version'] >= "20"
 
 - name: Setup ufw firewall UDP rules
   become: true
@@ -79,8 +79,8 @@
   with_items:
     - "123"
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version >= "20"
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution_major_version'] >= "20"
 
 - name: Setup firewalld TCP rules
   become: true
@@ -93,7 +93,7 @@
     - "22"
     - "123"
   when:
-    - ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Rocky"
 
 - name: Setup firewalld UDP rules
   become: true
@@ -105,7 +105,7 @@
   with_items:
     - "123"
   when:
-    - ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Rocky"
 
 - name: Enable firewalld service
   become: true
@@ -116,7 +116,7 @@
     enabled: true
     name: firewalld
   when:
-    - ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Rocky"
 
 - name: Enable NTP service
   become: true
@@ -127,8 +127,8 @@
     enabled: true
     name: ntp
   when:
-    - ansible_distribution == "Ubuntu"
-    - ansible_distribution_major_version >= "20"
+    - ansible_facts['distribution'] == "Ubuntu"
+    - ansible_facts['distribution_major_version'] >= "20"
 
 - name: Enable NTP service
   become: true
@@ -139,7 +139,7 @@
     enabled: true
     name: ntpd
   when:
-    - ansible_distribution == "CentOS"
+    - ansible_facts['distribution'] == "CentOS"
 
 - name: Enable chrony service
   become: true
@@ -150,7 +150,7 @@
     enabled: true
     name: chronyd
   when:
-    - ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "Rocky"
 
 - name: Ensure limits are correct for the account "{{ WODUSER }}"
   ansible.builtin.lineinfile:
@@ -182,7 +182,7 @@
     mode: "0600"
   when:
     - profile_path.rc != 0
-    - ansible_os_family == "Debian"
+    - ansible_facts['os_family'] == "Debian"
 
 - name: Ensure we have a .profile file for RPM systems
   ansible.builtin.copy:
@@ -193,7 +193,7 @@
     mode: "0600"
   when:
     - profile_path.rc != 0
-    - ansible_distribution == "CentOS" or ansible_distribution == "Rocky"
+    - ansible_facts['distribution'] == "CentOS" or ansible_facts['distribution'] == "Rocky"
 
 - name: Ensure vim is the default EDITOR
   ansible.builtin.lineinfile:
@@ -251,7 +251,7 @@
   become: true
   become_user: root
   ansible.builtin.file:
-    src: "/usr/local/bin/wod-upd.{{ ansible_pkg_mgr }}"
+    src: "/usr/local/bin/wod-upd.{{ ansible_facts['pkg_mgr'] }}"
     dest: /usr/local/bin/wod-upd
     state: link
 
