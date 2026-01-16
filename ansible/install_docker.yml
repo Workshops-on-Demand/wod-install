@@ -30,8 +30,8 @@
     state: present
   when:
     - ansible_facts['distribution'] == "Ubuntu"
-    - ansible_facts['distribution']_major_version >= "20"
-    - ansible_facts['distribution']_major_version < "26"
+    - ansible_facts['distribution_major_version'] >= "20"
+    - ansible_facts['distribution_major_version'] < "26"
 
 - name: Setup Docker repo for APT
   become: true
@@ -41,7 +41,7 @@
     state: present
   when:
     - ansible_facts['distribution'] == "Ubuntu"
-    - ansible_facts['distribution']_major_version >= "20"
+    - ansible_facts['distribution_major_version'] >= "20"
 
 - name: Setup Docker repo for APT with deb822
   become: true
@@ -57,7 +57,7 @@
     signed_by: https://download.docker.com/linux/ubuntu/gpg
   when:
     - ansible_facts['distribution'] == "Ubuntu"
-    - ansible_facts['distribution']_major_version >= "26"
+    - ansible_facts['distribution_major_version'] >= "26"
 
 - name: Ensure no existing incorrect docker pkg is installed
   become: true
