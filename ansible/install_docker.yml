@@ -42,6 +42,7 @@
   when:
     - ansible_facts['distribution'] == "Ubuntu"
     - ansible_facts['distribution_major_version'] >= "20"
+    - ansible_facts['distribution_major_version'] < "26"
 
 - name: Setup Docker repo for APT with deb822
   become: true
