@@ -53,7 +53,7 @@
     uris: https://download.docker.com/linux/ubuntu 
     suites: questing
     components:
-      - main
+      - stable
     architectures: amd64
     signed_by: https://download.docker.com/linux/ubuntu/gpg
   when:
