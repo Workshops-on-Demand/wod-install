@@ -595,7 +595,7 @@ chown $WODUSER /etc/wod.sh
 chmod 755 /etc/wod.sh
 
 # Manage passwd
-export WODPWD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`
+export WODPWD=`head -100 /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1`
 echo "$WODUSER:$WODPWD" | chpasswd
 echo "$WODUSER is $WODPWD" > $HDIR/.wodinstall/$WODUSER
 
