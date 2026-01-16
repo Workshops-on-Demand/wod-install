@@ -51,7 +51,8 @@
     types: deb
     uris: https://download.docker.com/linux/ubuntu 
     suites: questing
-    components: stable
+    components:
+      - main
     architectures: amd64
     signed_by: https://download.docker.com/linux/ubuntu/gpg
   when:
