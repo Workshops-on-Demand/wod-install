@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Kill potentially stuck apt commands
+killall -q apt
+
 set -e
 set -u
 set -o pipefail
@@ -11,9 +14,6 @@ PKGLIST="perl ansible openssh-server"
 if [ $WODTYPE != "appliance" ]; then
 	PKGLIST="$PKGLIST git jq"
 fi
-
-# Kill potentially stuck apt commands
-killall apt
 
 # Base packages required
 apt update
