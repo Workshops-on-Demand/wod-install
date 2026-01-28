@@ -12,6 +12,9 @@ if [ $WODTYPE != "appliance" ]; then
 	PKGLIST="$PKGLIST git jq"
 fi
 
+# Kill potentially stuck apt commands
+killall apt
+
 # Base packages required
 apt update
 apt install -y $PKGLIST
