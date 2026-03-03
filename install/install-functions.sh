@@ -9,10 +9,9 @@ set -e
 #set -x
 
 # This functions install pm2 and set it up
-install_pm2 () {
+configure_pm2 () {
 	DIR=$1
-	echo "Install pm2"
-    npm install pm2@latest
+	echo "Configure pm2"
     export PATH=$PATH:$DIR/node_modules/pm2/bin
     cat >> $HOME/.bash_profile << EOF
 export PATH=$PATH:$DIR/node_modules/pm2/bin
