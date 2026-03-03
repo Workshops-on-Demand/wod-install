@@ -303,7 +303,7 @@ EOF
 fi
 
 if [ $WODTYPE = "backend" ]; then
-	JPHUB=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".JPHUB"`
+	JPHUB=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".JPHUB" | sed 's/"//g'`
     # In case of update remove first old jupyterhub version
     if [ _"$JPHUB" = _"" ]; then
         echo "Directory for jupyterhub is empty"
