@@ -396,6 +396,8 @@ EOF
     # That dir is owned by lxd, so needs root to remove
     sudo su - -c "rm -rf $PGSQLDIR"
     sudo su - $WODUSER -c "cd $WODAPIDBDIR ; docker compose config ; docker compose up -d"
+    # Let time for PosgreSQL to start
+    sleep 5
     # Manage locations
     #psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'CREATE TABLE IF NOT EXISTS locations ("createdAt" timestamp DEFAULT current_timestamp, "updatedAt" timestamp DEFAULT current_timestamp, "location" varchar CONSTRAINT no_null NOT NULL, "basestdid" integer CONSTRAINT no_null NOT NULL);'
     # Debugging npm errors in migration: cd wod-api-db ; npx sequelize db:seed:all --debug
@@ -426,16 +428,17 @@ EOF
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$moderatorroleid','$moderatoruserid');'
     # Map the admin user
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$adminroleid','$adminuserid');'
-    # Install pm2
-    install_pm2 $WODAPIDBDIR
+    # Configure pm2
+    configure_pm2 $WODAPIDBDIR
 elif [ $WODTYPE = "frontend" ]; then
     cd $WODFEDIR
+    mkdir -p .cache
     echo "Launching npm install..."
     npm install
     echo "Patching package.json to allow listening on the right host:port"
     perl -pi -e "s|gatsby develop|gatsby develop -H $WODFEFQDN -p $WODFEPORT|" package.json
-    # Install pm2
-    install_pm2 $WODFEDIR
+    # Configure pm2
+    configure_pm2 $WODFEDIR
 fi
 
 if [ $WODTYPE != "appliance" ]; then
