@@ -399,6 +399,8 @@ EOF
     # Manage locations
     #psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'CREATE TABLE IF NOT EXISTS locations ("createdAt" timestamp DEFAULT current_timestamp, "updatedAt" timestamp DEFAULT current_timestamp, "location" varchar CONSTRAINT no_null NOT NULL, "basestdid" integer CONSTRAINT no_null NOT NULL);'
     # Debugging npm errors in migration: cd wod-api-db ; npx sequelize db:seed:all --debug
+    # Manages format differences
+    psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'ALTER DATABASE template1 REFRESH COLLATION VERSION;'
     echo "Reset DB data"
     npm run reset-data
     echo "Setup user $WODAPIDBUSER"
