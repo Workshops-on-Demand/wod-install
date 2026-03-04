@@ -55,10 +55,33 @@ if (defined $opts{'s'}) {
 	foreach my $m (sort keys %m) {
 		my $ssh = Net::OpenSSH->new($m{$m}->{'name'}, 
 			master_opts => [-o => "StrictHostKeyChecking=no"]);
+		if (-f "install.priv") {
+			print "Copying a local install.priv remotely\n";
+			$ssh->scp_put("install.priv",".") or die "scp failed: " . $ssh->error;
+		}
+		print "Making build script\n";
+		open(SCRIPT,"> vl-script.sh") || die "Unable to create vl-script.sh";
+		print SCRIPT <<"EOF";
+#!/bin/bash
+rm -rf wod-install
+git clone https://github.com/Workshops-on-Demand/wod-install.git
+cd wod-install/install
+if [ -f "../../install.priv" ]; then
+	cp -a ../../install.priv .
+	. install.priv
+else
+	. install.repo
+fi
+git checkout -b \$WODINSBRANCH
+nohup sudo -b ./install.sh -t $m -a $m{'api-db'}->{'name'} -b $m{'backend'}->{'name'} -f $m{'frontend'}->{'name'} -g $WODGROUP -s wodadmin\@$m{'backend'}->{'name'}
+rm -f install.priv ../../install.priv
+EOF
+		close(SCRIPT);
+		print "Copying the local build script remotely\n";
+		$ssh->scp_put("vl-script.sh",".") or die "scp failed: " . $ssh->error;
 		#sudo ./install.sh -t backend -b wod-backend-u2404.wodnet.musique-ancienne.org -a wod-api-db-u2404.wodnet.musique-ancienne.org -f wod-frontend-u2404.wodnet.musique-ancienne.org -g vmtest -s wodadmin@wod-backend-u2404.wodnet.musique-ancienne.org
-		## With a special branch
-		# $ssh->system("rm -rf wod-install ; git clone https://github.com/Workshops-on-Demand/wod-install.git ; cd wod-install/install ; echo 'WODBEBRANCH=\"wod-install\"' > install.priv ; echo 'WODFEBRANCH=\"wod-install\"' >> install.priv ; echo 'WODAPIDBBRANCH=\"wod-install\"' >> install.priv ;  echo 'WODPRIVBRANCH=\"wod-install\"' >> install.priv ; nohup sudo -b ./install.sh -t $m -a $m{'api-db'}->{'name'} -b $m{'backend'}->{'name'} -f $m{'frontend'}->{'name'} -g $WODGROUP -s wodadmin\@$m{'backend'}->{'name'}");
-		$ssh->system("rm -rf wod-install ; git clone https://github.com/Workshops-on-Demand/wod-install.git ; cd wod-install/install ; nohup sudo -b ./install.sh -t $m -a $m{'api-db'}->{'name'} -b $m{'backend'}->{'name'} -f $m{'frontend'}->{'name'} -g $WODGROUP -s wodadmin\@$m{'backend'}->{'name'}");
+		print "Launching the build script remotely\n";
+		$ssh->system("chmod 755 ./vl-script.sh ; ./vl-script.sh");
 	}
 	exit(0);
 }
