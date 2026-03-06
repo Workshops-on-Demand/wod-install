@@ -406,9 +406,9 @@ EOF
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c "UPDATE users set password=crypt('$WODAPIDBUSERPWD',gen_salt('bf')) where username='$WODAPIDBUSER';"
     echo "Setup user $WODAPIDBADMIN"
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c "UPDATE users set password=crypt('$WODAPIDBADMINPWD',gen_salt('bf')) where username='$WODAPIDBADMIN';"
-    echo "Setup user_roles table not done elsewhere"
-    psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'CREATE TABLE IF NOT EXISTS user_roles ("createdAt" timestamp DEFAULT current_timestamp, "updatedAt" timestamp DEFAULT current_timestamp, "roleId" integer CONSTRAINT no_null NOT NULL REFERENCES roles (id), "userId" integer CONSTRAINT no_null NOT NULL REFERENCES users (id));'
-    psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'ALTER TABLE user_roles ADD CONSTRAINT "ID_PKEY" PRIMARY KEY ("roleId","userId");'
+    #echo "Setup user_roles table not done elsewhere"
+    #psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'CREATE TABLE IF NOT EXISTS user_roles ("createdAt" timestamp DEFAULT current_timestamp, "updatedAt" timestamp DEFAULT current_timestamp, "roleId" integer CONSTRAINT no_null NOT NULL REFERENCES roles (id), "userId" integer CONSTRAINT no_null NOT NULL REFERENCES users (id));'
+    #psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'ALTER TABLE user_roles ADD CONSTRAINT "ID_PKEY" PRIMARY KEY ("roleId","userId");'
     # Get info on roles and users already declared
     userroleid=`psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -AXqtc "SELECT id FROM roles WHERE name='user';"`
     moderatorroleid=`psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -AXqtc "SELECT id FROM roles WHERE name='moderator';"`
