@@ -18,9 +18,10 @@ WODAPIDBPORT=8021
 WODAPIDBPROTO="http"
 WODAPIDBEXTPORT=$WODAPIDBPORT
 WODAPIDBEXTPROTO="$WODAPIDBPROTO"
+WODREVPROXY="0"
 
 usage() {
-    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-c][-x][-s sender]"
+    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-c][-x e-mail][-s sender]"
     echo " "
     echo "where:"
     echo "-a api-db    is the FQDN of the REST API/DB server"
@@ -126,8 +127,9 @@ usage() {
     echo "             useful to solve CORS errors when external and internal names"
     echo "             are different"
     echo " "
-    echo "-x           Installs an optional ngnix reverse proxy to transform"
-    echo "             http requests into https"
+    echo "-x e-mail    Installs an optional ngnix reverse proxy to transform"
+    echo "             http requests into https. Provide the e-mail receiving certbot"
+    echo "             updates as a parameter"
     echo " "
     echo " "
     echo "Full installation example of a stack with:"
@@ -174,11 +176,11 @@ s=""
 t=""
 u=""
 w=""
+x=""
 WODGENKEYS=0
 WODINSECURE=0
-WODREVPROXY=0
 
-while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hkcx" option; do
+while getopts "a:b:ce:f:g:hi:j:kn:o:p:s:t:u:w:x:" option; do
     case "${option}" in
         t)
             t=${OPTARG}
@@ -231,7 +233,7 @@ while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hkcx" option; do
             WODINSECURE=1
             ;;
         x)
-            WODREVPROXY=1
+            x=${OPTARG}
             ;;
         h)
             usage
@@ -447,6 +449,17 @@ if [ ! -z "${g}" ]; then
     WODGROUP="${g}"
 else
     WODGROUP="production"
+fi
+if [ ! -z "${x}" ]; then
+    echo ${x} | grep -q '@'
+    if [ $? -ne 0 ]; then
+        echo "Incorrect e-mail address for the reverse proxy - no @ in ${x}"
+        exit -1
+    else
+	WODREVPROXY="${x}"
+    fi
+else
+    WODREVPROXY="0"
 fi
 export WODGROUP WODFEFQDN WODBEFQDN WODAPIDBFQDN WODFEEXTFQDN WODBEEXTFQDN WODAPIDBEXTFQDN WODTYPE WODBEPORT WODFEPORT WODAPIDBPORT WODBEEXTPORT WODFEEXTPORT WODAPIDBEXTPORT WODPOSTPORT WODBEPROTO WODFEPROTO WODAPIDBPROTO WODBEEXTPROTO WODFEEXTPROTO WODAPIDBEXTPROTO
 

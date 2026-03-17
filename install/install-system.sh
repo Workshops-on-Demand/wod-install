@@ -305,7 +305,7 @@ EOF
 fi
 
 if [ $WODTYPE = "backend" ]; then
-	JPHUB=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".JPHUB" | sed 's/"//g'`
+    JPHUB=`ansible-inventory -i $WODANSIBLEDIR/inventory $WODPRIVINV --host $WODGROUP --playbook-dir $WODANSIBLEDIR --playbook-dir $WODINSANSDIR --playbook-dir $WODANSIBLEPRIVDIR $WODANSPLAYOPT $WODANSPRIVOPT | jq ".JPHUB" | sed 's/"//g'`
     # In case of update remove first old jupyterhub version
     if [ _"$JPHUB" = _"" ]; then
         echo "Directory for jupyterhub is empty"
@@ -432,6 +432,10 @@ EOF
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$adminroleid','$adminuserid');'
     # Configure pm2
     configure_pm2 $WODAPIDBDIR
+    # If reverse proxy was asked perform additional tasks
+    if [ _"$WODREVPROXY" != _"0"]; then
+        sudo certbot --nginx -d $WODAPIDBFQDN -d $WODFRONTENDFQDN -d $WODBACKENDFQDN -n -m $WODREVPROXY
+    fi
 elif [ $WODTYPE = "frontend" ]; then
     cd $WODFEDIR
     mkdir -p .cache
