@@ -20,7 +20,7 @@ WODAPIDBEXTPORT=$WODAPIDBPORT
 WODAPIDBEXTPROTO="$WODAPIDBPROTO"
 
 usage() {
-    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-c][-s sender]"
+    echo "install.sh [-h][-t type][-i ip][-g groupname][-b backend[:beport:[beproto]][-n number][-j backendext[:beportext[:beprotoext]]][-f frontend[:feport[:feproto]]][-w frontendext[:feportext[:feprotoext]]][-a api-db[:apidbport[:apidbproto]]][-e api-dbext[:apidbportext[:apidbprotoext]]][-u user][-p postport][-k][-c][-x][-s sender]"
     echo " "
     echo "where:"
     echo "-a api-db    is the FQDN of the REST API/DB server"
@@ -41,6 +41,12 @@ usage() {
     echo "             or multiple backend servers, using their FQDN separated "
     echo "             with ',' using the same order as given with the -n option"
     echo "             during backend installation."
+    echo " "
+    echo "-c           if used, force insecured curl communications"
+    echo "             this is particularly useful for self-signed certificate"
+    echo "             on https services"
+    echo "             if not used keep curl verification, preventing self-signed"
+    echo "             certificates to work"
     echo " "
     echo "-e api-dbext is the FQDN of the REST API server accessible externally"
     echo "             potentially with a port (default $WODAPIDBEXTPORT)"
@@ -82,12 +88,6 @@ usage() {
     echo "             if the name of the admin user is changed, new keys "
     echo "             systematically re-created"
     echo " "
-    echo "-c           if used, force insecured curl communications"
-    echo "             this is particularly useful for self-signed certificate"
-    echo "             on https services"
-    echo "             if not used keep curl verification, preventing self-signed"
-    echo "             certificates to work"
-    echo " "
     echo "-n           if used, this indicates the number of the backend "
     echo "             currently installed"
     echo "             used for the backend installation only, when multiple"
@@ -126,6 +126,9 @@ usage() {
     echo "             useful to solve CORS errors when external and internal names"
     echo "             are different"
     echo " "
+    echo "-x           Installs an optional ngnix reverse proxy to transform"
+    echo "             http requests into https"
+    echo " "
     echo " "
     echo "Full installation example of a stack with:"
     echo "- 2 backend servers be1 and be2 using port 8010"
@@ -157,24 +160,25 @@ usage() {
 
 echo "install.sh called with $*"
 # Run as root
-t=""
-f=""
-b=""
 a=""
+b=""
 e=""
-j=""
+f=""
 g=""
-u=""
-s=""
-k=""
 i=""
-p=""
+j=""
+k=""
 n=""
+p=""
+s=""
+t=""
+u=""
 w=""
 WODGENKEYS=0
 WODINSECURE=0
+WODREVPROXY=0
 
-while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hkc" option; do
+while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hkcx" option; do
     case "${option}" in
         t)
             t=${OPTARG}
@@ -225,6 +229,9 @@ while getopts "t:f:b:o:n:a:e:j:w:g:i:u:s:p:hkc" option; do
             ;;
         c)
             WODINSECURE=1
+            ;;
+        x)
+            WODREVPROXY=1
             ;;
         h)
             usage
@@ -687,12 +694,13 @@ export WODAPIDBUSER="$WODAPIDBUSER"
 export WODAPIDBUSERPWD="$WODAPIDBUSERPWD"
 export WODAPIDBADMIN="$WODAPIDBADMIN"
 export WODAPIDBADMINPWD="$WODAPIDBADMINPWD"
+export WODREVPROXY="$WODREVPROXY"
 EOF
     chmod 644 /tmp/wodexports
     su - $WODUSER -c "source /tmp/wodexports ; $EXEPATH/install-system-common.sh"
     rm -f /tmp/wodexports
 else
-    su - $WODUSER -w WODGROUP,WODFEFQDN,WODBEFQDN,WODAPIDBFQDN,WODFEEXTFQDN,WODBEEXTFQDN,WODAPIDBEXTFQDN,WODTYPE,WODBEIP,WODDISTRIB,WODDISTRIBNAME,WODUSER,WODFEREPO,WODBEREPO,WODAPIREPO,WODNOBOREPO,WODPRIVREPO,WODINSREPO,WODFEBRANCH,WODBEBRANCH,WODAPIDBBRANCH,WODNOBOBRANCH,WODPRIVBRANCH,WODINSBRANCH,WODSENDER,WODGENKEYS,WODINSECURE,WODTMPDIR,WODFEPORT,WODBEPORT,WODAPIDBPORT,WODFEEXTPORT,WODBEEXTPORT,WODAPIDBEXTPORT,WODFEPROTO,WODBEPROTO,WODAPIDBPROTO,WODFEEXTPROTO,WODBEEXTPROTO,WODAPIDBEXTPROTO,WODPOSTPORT,WODBENBR,WODSENDGRIDAPIKEY,WODDENYLIST,WODPGUSER,WODPGPASSWD,WODPGDB,WODAPIDBUSER,WODAPIDBUSERPWD,WODAPIDBADMIN,WODAPIDBADMINPWD -c "$EXEPATH/install-system-common.sh"
+    su - $WODUSER -w WODGROUP,WODFEFQDN,WODBEFQDN,WODAPIDBFQDN,WODFEEXTFQDN,WODBEEXTFQDN,WODAPIDBEXTFQDN,WODTYPE,WODBEIP,WODDISTRIB,WODDISTRIBNAME,WODUSER,WODFEREPO,WODBEREPO,WODAPIREPO,WODNOBOREPO,WODPRIVREPO,WODINSREPO,WODFEBRANCH,WODBEBRANCH,WODAPIDBBRANCH,WODNOBOBRANCH,WODPRIVBRANCH,WODINSBRANCH,WODSENDER,WODGENKEYS,WODINSECURE,WODTMPDIR,WODFEPORT,WODBEPORT,WODAPIDBPORT,WODFEEXTPORT,WODBEEXTPORT,WODAPIDBEXTPORT,WODFEPROTO,WODBEPROTO,WODAPIDBPROTO,WODFEEXTPROTO,WODBEEXTPROTO,WODAPIDBEXTPROTO,WODPOSTPORT,WODBENBR,WODSENDGRIDAPIKEY,WODDENYLIST,WODPGUSER,WODPGPASSWD,WODPGDB,WODAPIDBUSER,WODAPIDBUSERPWD,WODAPIDBADMIN,WODAPIDBADMINPWD,WODREVPROXY -c "$EXEPATH/install-system-common.sh"
 fi
 
 echo "Setting up original rights for $WODHDIR with $BKPSTAT"
