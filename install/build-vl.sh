@@ -9,13 +9,17 @@ EXEPATH=`dirname "$0"`
 $EXEPATH/build-vl.pl
 # Start the VM if necessary
 for v in `grep name: virt-lightning.yaml | cut -d: -f2`; do
-	LANG=C virsh -c qemu:///system list | grep $v | grep -q 'shut off'
+	LANG=C virsh -c qemu:///system list --all | grep $v | grep -q 'shut off'
 	if [ $? -eq 0 ]; then
 		virsh -c qemu:///system start $v
-		sleep 30
 	fi
 done
+echo "Waiting for VMs to start..."
+sleep 30
 # Ask vl to launch the VMs
 vl up
 # Install the WoD stack
 $EXEPATH/build-vl.pl -s
+
+# To clean VMs
+# use destroy and undefine
