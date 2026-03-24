@@ -7,6 +7,9 @@ EXEPATH=`dirname "$0"`
 #
 # Prepare the conf file for vl
 $EXEPATH/build-vl.pl
+# Autostart the network
+#sudo virsh net-define /etc/libvirt/qemu/networks/virt-lightning.xml
+#sudo virsh net-autostart virt-lightning
 # Start the VM if necessary
 for v in `grep name: virt-lightning.yaml | cut -d: -f2`; do
 	LANG=C virsh -c qemu:///system list --all | grep $v | grep -q 'shut off'
