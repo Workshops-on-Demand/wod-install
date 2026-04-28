@@ -430,7 +430,7 @@ EOF
     # Configure pm2
     configure_pm2 $WODAPIDBDIR
     # If reverse proxy was asked perform additional tasks
-    if [ _"$WODREVPROXY" != _"0"]; then
+    if [ _"$WODREVPROXY" != _"0" ]; then
         sudo certbot --nginx -d $WODAPIDBFQDN -d $WODFEFQDN -d $WODBEFQDN -n -m $WODREVPROXY
     fi
 elif [ $WODTYPE = "frontend" ]; then
