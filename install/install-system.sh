@@ -397,8 +397,6 @@ EOF
     # That dir is owned by lxd, so needs root to remove
     sudo su - -c "rm -rf $PGSQLDIR"
     sudo su - $WODUSER -c "cd $WODAPIDBDIR ; docker compose config ; docker compose up -d"
-    # Let time for PosgreSQL to start
-    sleep 5
     # Manage locations
     #psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'CREATE TABLE IF NOT EXISTS locations ("createdAt" timestamp DEFAULT current_timestamp, "updatedAt" timestamp DEFAULT current_timestamp, "location" varchar CONSTRAINT no_null NOT NULL, "basestdid" integer CONSTRAINT no_null NOT NULL);'
     # Debugging npm errors in migration: cd wod-api-db ; npx sequelize db:seed:all --debug
