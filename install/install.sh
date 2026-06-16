@@ -156,6 +156,7 @@ usage() {
 }
 
 echo "install.sh called with $*"
+installlog="install.sh $*"
 # Run as root
 t=""
 f=""
@@ -494,6 +495,7 @@ mkdir -p $HDIR/.wodinstall
 exec &> >(tee $HDIR/.wodinstall/install.log)
 
 echo "Install starting at `date`"
+echo "Using command: $installlog"
 # Get path of execution
 EXEPATH=`dirname "$0"`
 export EXEPATH=`( cd "$EXEPATH" && pwd )`
