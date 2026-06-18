@@ -74,6 +74,15 @@ usage() {
     echo "             if empty using the name of the backend                "
     echo "             useful when the name given with -b doesn't resolve from "
     echo "             the client browser"
+    echo "             If you use multiple backend systems corresponding to "
+    echo "             multiple locations, use option -n to give the backend"
+    echo "             number currently being installed, starting at 1."
+    echo "             external backend should correspond to internal one respectively."
+    echo " "
+    echo "             When installing the api-db server you have to specify one"
+    echo "             or multiple backend servers, using their FQDN separated "
+    echo "             with ',' using the same order as given with the -n option"
+    echo "             during backend installation."
     echo " "
     echo "-k           if used, force the re-creation of ssh keys for"
     echo "             the previously created admin user"
@@ -285,9 +294,9 @@ else
     WODBEFQDN=`hostname -f`
 fi
 # Here we have either a single backend for backend install
-# WODBEEXTFQDN will point to its FQDN
-# WODBEEXTPORT will point to its port
-# WODBEEXTPROTO will point to its proto
+# WODBEEXTFQDN will point to its external FQDN
+# WODBEEXTPORT will point to its external port
+# WODBEEXTPROTO will point to its external proto
 # or we have multiple of these when installing an api-db
 # WODBEEXTFQDN will point to the list of backends with ports and proto separated with ','
 # WODBEEXTPORT will be default and not used later
@@ -299,7 +308,7 @@ if [ ! -z "${j}" ]; then
     if [ _"$res" != _"" ]; then
         # We have multiple backends only meaningful in api-db install
         if [ $WODTYPE = "api-db" ]; then
-            WODBEFQDN="${j}"
+            WODBEEXTFQDN="${j}"
             MULTIBCKEND=1
         else
             echo "Multiple backends are only possible when installing an api-db machine"
@@ -405,23 +414,23 @@ fi
 
 # This IP address is for the backend only so makes only sense deploying a backend server
 if [ ! -z "${i}" ]; then
-    WODBEIP="${i}"
+    WODBEEXTIP="${i}"
 else
     if [ ! -x /usr/bin/ping ] || [ ! -x /bin/ping ]; then
         echo "Please install the ping command before re-running this install script"
         exit -1
     fi
     # If ping doesn't work continue if we got the IP address
-    FQDN="`echo $WODBEFQDN | cut -d, -f1 | cut -d: -f1`"
+    FQDN="`echo $WODBEEXTFQDN | cut -d, -f1 | cut -d: -f1`"
 set +e
-    WODBEIP=`ping -c 1 $FQDN 2>/dev/null | grep PING | grep $FQDN | cut -d'(' -f2 | cut -d')' -f1`
+    WODBEEXTIP=`ping -c 1 $FQDN 2>/dev/null | grep PING | grep $FQDN | cut -d'(' -f2 | cut -d')' -f1`
 set -e
-    if [ _"$WODBEIP" = _"" ]; then
-        echo "Unable to find IP address for server $WODBEFQDN"
+    if [ _"$WODBEEXTIP" = _"" ]; then
+        echo "Unable to find IP address for server $WODBEEXTFQDN"
         exit -1
     fi
 fi
-export WODBEIP
+export WODBEEXTIP
 
 if [ ! -z "${u}" ]; then
     export WODUSER="${u}"
@@ -460,12 +469,14 @@ if [ _"$WODAPIDBEXTFQDN" != _"$WODAPIDBFQDN" ]; then
     echo "Using external api-db $WODAPIDBEXTFQDN on port $WODAPIDBEXTPORT proto $WODAPIDBEXTPROTO"
 fi
 if [ _"$MULTIBCKEND" = _"1" ]; then
-    echo "Using backends $WODBEFQDN (with first IP $WODBEIP)"
+    echo "Using backends $WODBEFQDN"
 else
-    echo "Using backend $WODBEFQDN ($WODBEIP) on port $WODBEPORT proto $WODBEPROTO"
+    echo "Using backend $WODBEFQDN on port $WODBEPORT proto $WODBEPROTO"
 fi
 if [ _"$WODBEEXTFQDN" != _"$WODBEFQDN" ]; then
-    echo "Using external backend $WODBEEXTFQDN on port $WODBEEXTPORT proto $WODBEEXTPROTO"
+	echo "Using external backend $WODBEEXTFQDN on port $WODBEEXTPORT proto $WODBEEXTPROTO (with first IP $WODBEEXTIP)"
+else
+	echo "Using backed IP: $WODBEEXTIP"
 fi
 echo "Using groupname $WODGROUP"
 echo "Using WoD user $WODUSER"
@@ -646,7 +657,7 @@ export WODFEEXTFQDN="$WODFEEXTFQDN"
 export WODBEEXTFQDN="$WODBEEXTFQDN"
 export WODAPIDBEXTFQDN="$WODAPIDBEXTFQDN"
 export WODTYPE="$WODTYPE"
-export WODBEIP="$WODBEIP"
+export WODBEEXTIP="$WODBEEXTIP"
 export WODDISTRIB="$WODDISTRIB"
 export WODDISTRIBNAME="$WODDISTRIBNAME"
 export WODUSER="$WODUSER"
