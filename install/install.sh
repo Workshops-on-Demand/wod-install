@@ -149,19 +149,19 @@ usage() {
     echo "On the be1 machine:"
     echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
-    echo "  -b be1.local:8010 -n 1 -t backend \\"
+    echo "  -b be1.local:8010 -n 1 -t backend"
     echo "On the be2 machine:"
     echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
-    echo "  -b be2.local:8010 -n 2 -t backend \\"
+    echo "  -b be2.local:8010 -n 2 -t backend"
     echo "On the apidb machine:"
     echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
-    echo "  -b be1.local:8010,be2.local:8010 -t api-db \\"
+    echo "  -b be1.local:8010,be2.local:8010 -t api-db"
     echo "On the frontend machine:"
     echo "  ./install.sh -a apidb.local:10000:https -f front.local:8000 \\"
     echo "  -g test -u wodmgr -p 9000 -s wodmailer@local\\"
-    echo "  -t frontend \\"
+    echo "  -t frontend"
 }
 
 echo "install.sh called with $*"
@@ -544,12 +544,14 @@ if grep -qE "^$WODUSER:" /etc/passwd; then
    # For idempotency, kill potentially existing jobs
    if [ $WODTYPE = "api-db" ]; then
        set +e
-       # Clean potential remaining docker containers
+       # Clean potential remaining docker containers and images
        docker --version 2>&1 /dev/null
        if [ $? -eq 0 ]; then
            systemctl restart docker
            docker stop postgres
            docker stop wod-api-db-adminer-1
+           docker container prune -f
+           docker rmi postgres adminer
            systemctl stop docker
        fi
        # Avoid errors with wod-api-db/data removal as WODUSER

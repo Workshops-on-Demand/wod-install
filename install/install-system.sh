@@ -395,7 +395,7 @@ EOF
     sudo su - $WODUSER -c "cd $WODAPIDBDIR ; docker compose down"
     # That dir is owned by lxd, so needs root to remove
     sudo su - -c "rm -rf $PGSQLDIR"
-    sudo su - $WODUSER -c "cd $WODAPIDBDIR ; docker compose config ; docker compose up -d"
+    sudo su - $WODUSER -c "cd $WODAPIDBDIR ; docker compose config ; docker compose pull ; docker compose up -d"
     # Let time for PosgreSQL to start
     sleep 5
     # Manage locations
