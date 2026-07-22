@@ -2,7 +2,6 @@
 #
 # Functions called from other install scripts
 #
-# (c) Bruno Cornec <bruno.cornec@hpe.com>, Hewlett Packard Development
 # Released under the GPLv2 License
 #
 set -e
