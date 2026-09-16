@@ -432,6 +432,10 @@ EOF
     if [ -d _"$WODPRIVDIR/api-db" ]; then
 	    (cd $WODPRIVDIR/api-db; tar cf . - ) | ( tar xvf - .)
     fi
+    # If private install script use it
+    if [ -x _"$WODPRIVDIR/install/install-api-db.sh" ]; then
+	    $WODPRIVDIR/install/install-api-db.sh
+    fi
     # Configure pm2
     configure_pm2 $WODAPIDBDIR
 elif [ $WODTYPE = "frontend" ]; then
