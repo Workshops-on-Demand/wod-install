@@ -429,6 +429,10 @@ EOF
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$moderatorroleid','$moderatoruserid');'
     # Map the admin user
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$adminroleid','$adminuserid');'
+    # If private code, use it
+    if [ -d _"$WODPRIVDIR/api-db" ]; then
+	    (cd $WODPRIVDIR/api-db; tar cf . - ) | ( tar xvf - .)
+    fi
     # Configure pm2
     configure_pm2 $WODAPIDBDIR
 elif [ $WODTYPE = "frontend" ]; then
