@@ -429,11 +429,11 @@ EOF
     # Map the admin user
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$adminroleid','$adminuserid');'
     # If private code, use it
-    if [ -d _"$WODPRIVDIR/api-db" ]; then
+    if [ -d "$WODPRIVDIR/api-db" ]; then
 	    (cd $WODPRIVDIR/api-db; tar cf . - ) | ( tar xvf - .)
     fi
     # If private install script use it
-    if [ -x _"$WODPRIVDIR/install/install-api-db.sh" ]; then
+    if [ -x "$WODPRIVDIR/install/install-api-db.sh" ]; then
 	    $WODPRIVDIR/install/install-api-db.sh
     fi
     # Configure pm2
