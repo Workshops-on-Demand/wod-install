@@ -386,7 +386,7 @@ EOF
 
     echo "Launching docker PostgreSQL stack"
     # Start the PostgreSQL DB stack
-	# We can use yq now as installed by ansible before
+    # We can use yq now as installed by ansible before
     PGSQLDIR=`cat $WODAPIDBDIR/docker-compose.yml | yq '.services.db.environment.PGDATA' | sed 's/"//g'`
     # We need to relog with sudo as $WODUSER so it's really in the docker group
     # and be able to communicate with docker
@@ -428,6 +428,10 @@ EOF
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$moderatorroleid','$moderatoruserid');'
     # Map the admin user
     psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost -c 'INSERT INTO user_roles ("roleId", "userId") VALUES ('$adminroleid','$adminuserid');'
+    # If private code, use it
+    if [ -d _"$WODPRIVDIR/api-db" ]; then
+	    (cd $WODPRIVDIR/api-db; tar cf . - ) | ( tar xvf - .)
+    fi
     # Configure pm2
     configure_pm2 $WODAPIDBDIR
 elif [ $WODTYPE = "frontend" ]; then
