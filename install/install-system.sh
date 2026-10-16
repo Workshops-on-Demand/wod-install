@@ -77,6 +77,7 @@ export WODINSSCRIPTDIR=$WODINSSCRIPTDIR
 export WODANSIBLEDIR=$WODANSIBLEDIR
 #
 export WODGROUP=$WODGROUP
+export WODBACKUPDIR=$WODBACKUPDIR
 EOF
 
 cat >> /etc/wod.sh << 'EOF'
@@ -386,7 +387,7 @@ EOF
 
     echo "Launching docker PostgreSQL stack"
     # Start the PostgreSQL DB stack
-	# We can use yq now as installed by ansible before
+    # We can use yq now as installed by ansible before
     PGSQLDIR=`cat $WODAPIDBDIR/docker-compose.yml | yq '.services.db.environment.PGDATA' | sed 's/"//g'`
     # We need to relog with sudo as $WODUSER so it's really in the docker group
     # and be able to communicate with docker

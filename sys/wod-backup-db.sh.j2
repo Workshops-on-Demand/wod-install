@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Script to backup the PostgreSQL DB
+
+source /etc/wod.sh
+# To get PG vars
+source $WODSCRIPTPRIVDIR/wod-private.sh
+
+TMS=`date +"%y%m%d"`
+
+# We need to be in the docker container in order to use the correct version of pg_dump
+# The host one is generally older
+# Backup in plain format => restore with psql
+docker exec --env PGPASSWORD="$WODPGPASSWD" postgres pg_dump -a --format=p --username $WODPGUSER --host="localhost" --dbname="$WODPGDB" --table="customers" > $WODBACKUPDIR/customers-$TMS.sql 2> $WODBACKUPDIR/wod-backup-db-$TMS.log
+
+# Purge backups more than 2 months old
+find $WODBACKUPDIR -type f -name '*.sql' -mtime +60 | xargs rm -f
+find $WODBACKUPDIR -type f -name '*.log' -mtime +60 | xargs rm -f

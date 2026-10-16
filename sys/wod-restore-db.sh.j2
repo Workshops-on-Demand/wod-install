@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Script to restore the PostgreSQL DB
+#
+set -e
+
+source /etc/wod.sh
+# To get PG vars
+source $WODSCRIPTPRIVDIR/wod-private.sh
+
+TMS=`date +"%y%m%d"`
+
+# Find the more recent backup and use it except if a param was given
+if [ _"$1" = _"" ]; then 
+	BKPFILE=`ls -tr $WODBACKUPDIR/*.sql | tail -1`
+else
+	BKPFILE="$1"
+fi
+
+# Adapt content so it's conform to the table rules
+#  Force the studentId to a valid value for the first backend
+WODLOC=`docker exec --env PGPASSWORD="$WODPGPASSWD" postgres psql --username $WODPGUSER --host="localhost" --dbname="$WODPGDB"  -Aqtc 'SELECT name FROM locations WHERE id=1;'`
+WODID=`docker exec --env PGPASSWORD="$WODPGPASSWD" postgres psql --username $WODPGUSER --host="localhost" --dbname="$WODPGDB"  -Aqtc 'SELECT basestdid FROM locations WHERE id=1;'`
+WODID=$((WODID+1))
+cat > $BKPFILE.mod << EOF
+UPDATE customers SET "studentId" = $WODID;
+SELECT setval('customers_id_seq', (SELECT MAX(id) FROM customers));
+UPDATE customers SET "location" = '$WODLOC';
+UPDATE customers SET "lastEmailSent"='expired' WHERE "lastEmailSent" is NULL;
+UPDATE customers SET "specialBadgeId"=0 WHERE "specialBadgeId" is NULL;
+UPDATE customers SET "active" = 'false';
+EOF
+
+# Backup in plain format => restore with psql
+docker exec -i --env PGPASSWORD="$WODPGPASSWD" postgres psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost < $BKPFILE 2> $WODBACKUPDIR/wod-restore-db-$TMS.log
+docker exec -i --env PGPASSWORD="$WODPGPASSWD" postgres psql --dbname=$WODPGDB --username=$WODPGUSER --host=localhost < $BKPFILE.mod 2>> $WODBACKUPDIR/wod-restore-db-$TMS.log
