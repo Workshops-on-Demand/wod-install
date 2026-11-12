@@ -1,0 +1,89 @@
+---
+- name: Check NodeJS version
+  ansible.builtin.assert:
+    that:
+      - NODEVERSION | string is match('^[0-9]+$')
+    fail_msg: "NODEVERSION doit être un entier (ex. 22)."
+    quiet: true
+
+- name: Get NodeSource GPG Key
+  become: true
+  become_user: root
+  ansible.builtin.get_url:
+    url: "https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key"
+    dest: "/usr/share/keyrings/nodesource.asc"
+    owner: root
+    group: root
+    mode: "0644"
+  register: nodesource_key
+
+- name: Ensure sources.list.d is clean
+  become: true
+  become_user: root
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/nodesource.list
+    - /etc/apt/sources.list.d/nodesource.list.save
+  register: nodesource_legacy_removed
+
+- name: Configure NodeSource repo for Node.js {{ NODEVERSION }}.x
+  become: true
+  become_user: root
+  ansible.builtin.copy:
+    dest: "/etc/apt/sources.list.d/nodesource.sources"
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      Types: deb
+      URIs: https://deb.nodesource.com/node_{{ NODEVERSION }}.x
+      Suites: nodistro
+      Components: main
+      Architectures: amd64
+      Signed-By: /usr/share/keyrings/nodesource.asc
+  when:
+    - ansible_os_family == "Debian"
+  register: nodesource_repo
+
+- name: Nodejs repo needs to be pinned
+  become: true
+  become_user: root
+  ansible.builtin.blockinfile:
+    path: /etc/apt/preferences.d/nodejs
+    owner: root
+    group: root
+    mode: "0644"
+    backup: true
+    create: true
+    state: present
+    block: |
+      Package: nodejs
+      Pin: origin deb.nodesource.com
+      Pin-Priority: 600
+  when:
+    - ansible_os_family == "Debian"
+  register: nodesource_pin
+
+- name: update APT cache if needed
+  become: true
+  become_user: root
+  ansible.builtin.apt:
+    update_cache: true
+  when: >-
+    nodesource_key is changed or
+    nodesource_repo is changed or
+    nodesource_pin is changed or
+    nodesource_legacy_removed is changed
+
+- name: Ensure all non-required NodeJS packages are uninstalled
+  become: true
+  become_user: root
+  ansible.builtin.package:
+    name:
+      - nodejs
+      - npm
+      - libnode-dev
+      - libnode72
+    state: absent
