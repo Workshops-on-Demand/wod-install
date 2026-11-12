@@ -4,6 +4,9 @@
 #
 source /etc/wod.sh
 source $WODINSDIR/install-functions.sh
+if [ -f $WODSCRIPTPRIVDIR/wod-private.sh ]; then
+	source $WODSCRIPTPRIVDIR/wod-private.sh
+fi
 
 cd $WODROOTDIR/wod-$WODTYPE
 relaunch_with_pm2 wod-$WODTYPE
