@@ -20,6 +20,7 @@
     name:
       - curl
       - gnupg2
+      - ca-certificates
     state: present
 
 - name: Add universe repository into sources list

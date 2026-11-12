@@ -36,7 +36,7 @@
   become: true
   become_user: root
   ansible.builtin.apt_repository:
-    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
     state: present
   when:
     - ansible_distribution == "Ubuntu"
